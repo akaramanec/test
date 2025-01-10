@@ -2,10 +2,7 @@
 
 namespace App\Bot;
 
-use App\Bot\TmCommon;
 use App\Models\Customer;
-
-use function App\Bot\Telegram\getFullPhoneFormat;
 
 class TmAuth extends TmCommon
 {
@@ -22,17 +19,12 @@ class TmAuth extends TmCommon
     {
         $this->init->session->saveCommonMessageId($this->init->messageId);
         if ($this->validate('phone')) {
-            if ($phone = getFullPhoneFormat($this->init->data->value)) {
-                $this->init->customer->phone = $phone;
-                $this->init->customer->status = Customer::STATUS_ACTIVE;
-                $this->init->customer->save();
-                $this->deleteCommand();
-                $this->delCommon();
-                $this->start();
-            } else {
-                $this->phone(__('validation.not_regex', ['attribute' => __('validation.attributes.phone')]));
-                $this->init->session->saveCommonRequest($this->response);
-            }
+            $this->init->customer->phone = $this->init->data->value;
+            $this->init->customer->status = Customer::STATUS_ACTIVE;
+            $this->init->customer->save();
+            $this->deleteCommand();
+            $this->delCommon();
+            $this->start();
         } else {
             $this->phone($this->errors);
             $this->init->session->saveCommonRequest($this->response);

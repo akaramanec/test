@@ -2,6 +2,9 @@
 
 namespace App\Bot;
 
+use App\Models\Customer;
+use App\Models\Logger;
+
 /**
  * @property TmSession $session
  * @property Customer $customer

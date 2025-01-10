@@ -2,13 +2,7 @@
 
 namespace App\Bot;
 
-use App\Models\Admin\Setting;
-use App\Models\Bot\Customer;
-use App\Models\Bot\StartMessage;
-use App\Models\Bot\TranslateLanguage;
-use App\Models\Project\Event;
-use App\Models\Project\Operation;
-use App\Models\Project\Tariff;
+use App\Models\Customer;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -21,100 +15,20 @@ class TmCommon extends TmBase
     public function start()
     {
         $this->delAll();
-        if (! $this->init->customer->language) {
-            $this->chooseLanguage();
-        } else {
-            $text = null;
-            $this->init->setAccount();
-            if ($this->getSessionData('newCustomer')) {
-                $this->delSessionData('newCustomer');
-                $this->sendStartMessage();
-            }
-            if ($this->getSessionData('webLogin')) {
-                $this->delSessionData('webLogin');
-                $text = $this->text('webLogin');
-            }
-            $this->mainMenu($text, false);
-            $this->deleteMessage();
-        }
+        $this->mainMenu();
+        $this->checkAuth();
+        $this->deleteMessage();
     }
 
-    public function buy()
+    public function checkAuth()
     {
-        $digitalGodsData = $this->getDigitalGodsData([['amount' => 1, 'label' => 'label']], 'Title', 'Description', 'wqerewrwerw');
-        $photoData = $this->getPhotoData('https://fin.boto.kyiv.ua/storage/cache/newsletter/3/400x400m1720472828.png');
-        $this->sendStarsInvoice($digitalGodsData, $photoData);
-    }
-
-    public function buyTariffPro()
-    {
-        if (($proButtonPushTime = $this->getSessionData('buyTariffProButtonPushTime')) && now()->subMinute()->timestamp < $proButtonPushTime) {
-            exit(__METHOD__.' 1 minute send limit');
+        if ($this->init->customer->status === Customer::STATUS_BLACKLIST) {
+            $this->sendMessage($this->text('blacklist'));
+            exit(__METHOD__ . __LINE__);
         }
-        $this->setSessionData('buyTariffProButtonPushTime', now()->timestamp);
-        $tariff = Tariff::getPro();
-        $percent = (1 - ($tariff->cost_year / ($tariff->cost_month * 12))) * 100;
-        $placeholders = [
-            '{cost_year}' => $tariff->cost_year,
-            '{cost_month}' => $tariff->cost_month,
-            '{percent}' => round($percent),
-            '{saving}' => round($tariff->cost_year / 12, 2),
-        ];
-        $description = $this->text('proTariffDescription');
-        $cost = $this->text('proTariffCostDescription', $placeholders);
-        $text = '<strong>'.Tariff::getPro()->getName($this->init->customer->language).'</strong>'.PHP_EOL.PHP_EOL.$description.PHP_EOL.PHP_EOL.$cost;
-        $buttons = [
-            [
-                ['text' => $this->text('buyMonthBtn'), 'callback_data' => json_encode(['a' => 'or-btpm'])],
-            ],
-            [
-                ['text' => $this->text('buyYearBtn'), 'callback_data' => json_encode(['a' => 'or-btpy'])],
-            ],
-        ];
-        if ($tariff->img) {
-            $this->sendPhoto('', $tariff->mainImgUrl());
-            $this->saveResponseMessageIdToCommon();
-        }
-
-        $this->sendButton($text, $buttons);
-        $this->saveResponseMessageIdToCommon();
-    }
-
-    public function sendStartMessage()
-    {
-        /** @var StartMessage $startMessage */
-        $messages = StartMessage::whereStatus(StartMessage::STATUS_ACTIVE)->orderBy('sort')->get();
-        foreach ($messages as $startMessage) {
-            if ($messages->first() != $startMessage) {
-                $this->sendChatAction($startMessage->timeout);
-            }
-            $text = $startMessage->{$this->init->customer->language};
-            if ($startMessage->img) {
-                $this->sendPhoto($this->prepareText($text), $startMessage->mainImgUrl($this->init->customer->language));
-            } else {
-                $this->sendMessage($this->prepareText($text));
-            }
-            $this->saveResponseMessageIdToCommon();
-            if ($startMessage->audio) {
-                $this->sendVoice($startMessage->mainAudioUrl($this->init->customer->language));
-            }
-            $this->saveResponseMessageIdToCommon();
-        }
-    }
-
-    public function startMessage()
-    {
-        if ($startMessage = StartMessage::first()) {
-            $language = $this->init->customer->language ?? Setting::getGeneralItem('defaultLanguage');
-            $text = $this->prepareText($startMessage->{$language});
-            if ($startMessage->img) {
-                $entity = START_MESSAGE;
-                $img = config('app.domain_open')."/storage/{$entity}/".$startMessage->id.'/'.$startMessage->img;
-                $this->sendPhoto($text, $img);
-            } else {
-                $this->sendMessage($this->prepareText($text));
-            }
-            $this->saveResponseMessageIdToCommon();
+        if ($this->init->customer->status != Customer::STATUS_ACTIVE) {
+            $this->init->action('phone');
+            exit(__METHOD__);
         }
     }
 
@@ -159,7 +73,6 @@ class TmCommon extends TmBase
     public function mainMenu(?string $text = null, $delCommon = true)
     {
         $this->deleteMainMessage();
-        $this->chatMenu();
         if ($delCommon) {
             $this->delCommon();
         }

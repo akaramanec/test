@@ -26,15 +26,12 @@ class Customer extends Authenticatable implements JWTSubject
     protected $table = 'customers';
 
     protected $fillable = [
+        'phone',
+        'platform_id',
         'status',
         'name',
         'password',
     ];
-
-    public function platforms()
-    {
-        return $this->hasMany(CustomerPlatform::class);
-    }
 
     public function status(): string
     {

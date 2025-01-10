@@ -2,49 +2,60 @@
 
 namespace App\Bot;
 
-use App\Models\Customer;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use PDO;
 
 /**
  * @property string $platform_id
  * @property string $name
  * @property string $data
  */
-class TmSession extends Model
+class TmSession
 {
-    public $timestamps = false;
-
-    public $incrementing = false;
-
-    protected $table = 'sessions';
-
-    protected $fillable = ['platform_id', 'name', 'data'];
-
-    protected $casts = ['data' => 'array'];
-
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class, 'platform_id', 'platform_id');
-    }
+    public $platform_id;
+    public $name;
+    public $data;
 
     public function saveModel($name, $data)
     {
-        return self::updateOrCreate(['platform_id' => $this->platform_id, 'name' => $name], ['data' => $data]);
+        $this->del($name);
+        $q = DB::connection()
+            ->getPdo()
+            ->prepare("insert into sessions (platform_id, name, data) values (:platform_id, :name, :data)");
+        $q->bindValue(':platform_id', $this->platform_id);
+        $q->bindValue(':name', $name);
+        $q->bindValue(':data', json_encode($data));
+        $q->execute();
     }
 
     public function getModel($name)
     {
-        return self::where(['platform_id' => $this->platform_id])->where(['name' => $name])->first();
+        $q = DB::connection()
+            ->getPdo()
+            ->prepare("select data from sessions where platform_id=:platform_id and name=:name limit 1");
+        $q->bindValue(':platform_id', $this->platform_id);
+        $q->bindValue(':name', $name);
+        $q->execute();
+        return $q->fetch(PDO::FETCH_ASSOC);
     }
 
     public function del($name)
     {
-        return self::where(['platform_id' => $this->platform_id])->where(['name' => $name])->delete();
+        $q = DB::connection()
+            ->getPdo()
+            ->prepare("delete from sessions where platform_id=:platform_id and name=:name");
+        $q->bindValue(':platform_id', $this->platform_id);
+        $q->bindValue(':name', $name);
+        return $q->execute();
     }
 
     public function delAll()
     {
-        return self::where(['platform_id' => $this->platform_id])->delete();
+        $q = DB::connection()
+            ->getPdo()
+            ->prepare("delete from sessions where platform_id=:platform_id");
+        $q->bindValue(':platform_id', $this->platform_id);
+        return $q->execute();
     }
 
     public function set($name, $value)
@@ -54,25 +65,33 @@ class TmSession extends Model
 
     public function get($name)
     {
-        $model = $this->getModel($name);
-
-        return $model ? $model->data[$name] : null;
+        if ($model = $this->getModel($name)) {
+            $d = json_decode($model['data'], true);
+            return $d[$name];
+        }
+        return null;
     }
 
     public function saveCommonRequest($request)
     {
         if (isset($request['ok']) && $request['ok'] === true && isset($request['result']['message_id'])) {
-            (array) $data = $this->common();
-
+            (array)$data = $this->common();
             return $this->saveModel('common', $this->setDataUnique($request['result']['message_id'], $data));
         }
+    }
+
+    public function getRequestMessageId($request)
+    {
+        if (isset($request['ok']) && $request['ok'] === true && isset($request['result']['message_id'])) {
+            return $request['result']['message_id'];
+        }
+        return null;
     }
 
     public function saveCommonMessageId($messageId)
     {
         if ($messageId) {
-            (array) $data = $this->common();
-
+            (array)$data = $this->common();
             return $this->saveModel('common', $this->setDataUnique($messageId, $data));
         }
     }
@@ -80,14 +99,12 @@ class TmSession extends Model
     public function common()
     {
         $model = $this->getModel('common');
-
-        return $model ? $model->data : ['message_id' => []];
+        return $model ? json_decode($model['data'], true) : ['message_id' => []];
     }
 
     private function setDataUnique($message_id, $data)
     {
         $data['message_id'][] = $message_id;
-
         return ['message_id' => array_unique($data['message_id'])];
     }
 
@@ -98,7 +115,6 @@ class TmSession extends Model
         } else {
             $data['message_id'][] = $message_id;
         }
-
         return $data;
     }
 }
