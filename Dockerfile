@@ -52,6 +52,9 @@ RUN npm install && npm run build
 RUN php artisan key:generate || true
 RUN php artisan storage:link || true
 
+RUN php artisan vendor:publish --force --tag=livewire:assets
+
+
 RUN rm /etc/nginx/sites-enabled/default && \
     echo "server { listen 80; root /var/www/html/public; index index.php; location / { try_files \$uri \$uri/ /index.php?\$query_string; } location ~ \\.php\$ { include snippets/fastcgi-php.conf; fastcgi_pass 127.0.0.1:9000; } }" \
     > /etc/nginx/sites-available/laravel.conf && \
