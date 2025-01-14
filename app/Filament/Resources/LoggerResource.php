@@ -5,7 +5,10 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LoggerResource\Pages;
 use App\Filament\Resources\LoggerResource\RelationManagers;
 use App\Models\Logger;
+use Filament\Actions\Action;
 use Filament\Forms;
+use Filament\Forms\ComponentContainer;
+use Filament\Forms\Components\View;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -24,6 +27,26 @@ class LoggerResource extends Resource
     public static function shouldRegisterNavigation(): bool
     {
         return true;
+    }
+
+    public static function getHeaderActions(): array
+    {
+        return [
+            Action::make('Open Bot Info')
+                ->url(route('bot.info'))
+                ->label('Bot Info')
+                ->color('primary')
+                ->openUrlInNewTab(), // Відкриття у новій вкладці
+
+//                ->form([
+//                    // Поля модального вікна
+//                    View::make('bot.info-modal'),
+//                ])
+//                ->modalHeading('Bot Info')
+//                ->modalSubmitActionLabel('Close')
+//                ->translateLabel()
+//                ->modalWidth('lg'),
+        ];
     }
 
     public static function form(Form $form): Form
@@ -47,7 +70,6 @@ class LoggerResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('data')
-                    ->width('50%')
                     ->label('Дані')
                     ->view('components.formatted-data-column')
                     ->sortable(false),

@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 return [
     'chat_tm' => env('CHAT_TM'),
     'token_tm' => env('TOKEN_TM'),
+    'token_api' => env('TOKEN_API', env('APP_KEY')),
     'name' => env('APP_NAME', 'Laravel'),
     'env' => env('APP_ENV', 'production'),
     'debug' => (bool) env('APP_DEBUG', false),

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Bot;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Text extends Model
 {
-    protected $table = 'texts';
+    protected $table = 'bot_texts';
 
     public $timestamps = false;
 
@@ -56,5 +56,10 @@ class Text extends Model
         $allowedTags = '<b></b><i></i><s></s><strong></strong><em></em><strike></strike><u></u><code></code><a></a>';
 
         return strip_tags(strtr($text, $tagsPlaceholders), $allowedTags);
+    }
+
+    public static function getPrepared(string $command, array $placeholders = []): string
+    {
+        return self::prepareText(self::item($command, $placeholders));
     }
 }

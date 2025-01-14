@@ -15,4 +15,8 @@ class HookController extends Controller
         $tmInit->run(json_decode($input));
     }
 
+    public function test()
+    {
+        return response()->json(['message' => 'Hello, World!']);
+    }
 }

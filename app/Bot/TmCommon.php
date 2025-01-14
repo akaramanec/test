@@ -2,7 +2,7 @@
 
 namespace App\Bot;
 
-use App\Models\Customer;
+use App\Models\Bot\Customer;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -15,8 +15,9 @@ class TmCommon extends TmBase
     public function start()
     {
         $this->delAll();
-        $this->mainMenu();
         $this->checkAuth();
+        $this->sendMessage($this->text('start'));
+//        $this->mainMenu();
         $this->deleteMessage();
     }
 
@@ -95,78 +96,6 @@ class TmCommon extends TmBase
         }
     }
 
-    public function chatMenu(?string $text = null)
-    {
-        $text = $text ?? $this->text('cabinetEnterChatMenuBtn');
-        $this->sendChatMenuWebappButton($text);
-    }
-
-    public function operationsAnalysis()
-    {
-        $this->setSessionData('operationsAnalytic', true);
-        $this->sendMessage($this->text('operationsAnalysis'));
-        $message = $this->getSessionData('operationsAnalysisMessageId');
-        $this->setSessionData('operationsAnalysisMessageId', $this->getResponseMessageId());
-        if ($message) {
-            $this->deleteMessageByMessageId($message);
-        }
-    }
-
-    public function profile()
-    {
-        $this->profileMenu();
-    }
-
-    public function profileMenu(?string $text = null)
-    {
-        $this->checkProfile();
-
-        $orthography = $this->init->customer->profile->orthography;
-        $orthographyBtn = $this->text('orthographyBtn').' '.$this->getMarkSign($orthography);
-
-        $emoji = $this->init->customer->profile->emoji;
-        $emojiBtn = $this->text('emojiBtn').' '.$this->getMarkSign($emoji);
-
-        $translate = $this->init->customer->profile->translate;
-        $translateBtn = $this->text('translateBtn').' '.$this->getMarkSign($translate);
-
-        $language = $this->init->customer->profile->language;
-        $languageName = $language->{$this->init->customer->language ?? 'uk'};
-        $translateLanguageBtn = $this->text('translateLanguageBtn').' '.$languageName;
-
-        $placeholders = [
-            '{orthography}' => $this->getOnOff($orthography),
-            '{emoji}' => $this->getOnOff($emoji),
-            '{translate}' => $this->getOnOff($translate),
-            '{language}' => $languageName,
-        ];
-        $text = $text ?? $this->text('templateSettings', $placeholders);
-
-        $buttons = [
-            [['text' => $orthographyBtn]],
-            [['text' => $emojiBtn]],
-            [['text' => $translateBtn], ['text' => $translateLanguageBtn]],
-            [['text' => $this->text('backBtn')]],
-        ];
-
-        $mainMenuData = [
-            $orthographyBtn => ['a' => 'templateSetting', 'type' => 'orthography', 'value' => ! $orthography],
-            $emojiBtn => ['a' => 'templateSetting', 'type' => 'emoji', 'value' => ! $emoji],
-            $translateBtn => ['a' => 'templateSetting', 'type' => 'translate', 'value' => ! $translate],
-            $translateLanguageBtn => ['a' => 'translateLanguage'],
-            $this->text('backBtn') => ['a' => '/start'],
-        ];
-
-        $this->setMainMenuData($mainMenuData);
-        $this->sendMainMenu($text, $buttons);
-    }
-
-    public function operationsSummery()
-    {
-        $this->init->session->set('operationsSummery', true);
-        $this->sendMessage($this->text('operationsSummeryIntro'));
-    }
-
     public function getMarkSign(mixed $field): string
     {
         return $field ? $this->text('checkMark') : $this->text('crossMark');
@@ -175,77 +104,6 @@ class TmCommon extends TmBase
     public function getOnOff(mixed $field): string
     {
         return $field ? $this->text('on') : $this->text('off');
-    }
-
-    public function chooseLanguageMenu(?string $text = null)
-    {
-        $text = $text ?? $this->text('chooseHelloText');
-        $buttons = [];
-        foreach (array_keys(Customer::languages()) as $language) {
-            $buttons[] = [['text' => $this->text($language.'ChooseBtn'), 'callback_data' => json_encode(['a' => 'setLanguage', 'language' => $language])]];
-        }
-        $this->sendButton($text, $buttons);
-    }
-
-    public function translateLanguageMenu(?string $text = null)
-    {
-        $text = $text ?? $this->text('translateLanguage');
-        $mainMenuData = [];
-        $buttons = [];
-        foreach (TranslateLanguage::all() as $language) {
-            $mainMenuData[$language->{$this->init->customer->language ?? 'uk'}] = ['a' => 'setTranslateLanguage', 'language' => $language->iso_639_1];
-            $buttons[] = [['text' => $language->{$this->init->customer->language ?? 'uk'}]];
-        }
-        $this->setMainMenuData($mainMenuData);
-        $this->sendMainMenu($text, $buttons);
-    }
-
-    public function setLanguage()
-    {
-        if (! $this->init->data->language || ! array_key_exists($this->init->data->language, Customer::languages())) {
-            $this->unknown();
-        }
-        $this->init->customer->update(['language' => $this->init->data->language]);
-        $this->init->customer->refresh();
-        $this->start();
-    }
-
-    public function setTranslateLanguage()
-    {
-        if (! $this->init->data->language || ! ($translateLanguage = TranslateLanguage::where('iso_639_1', $this->init->data->language)->first())) {
-            $this->unknown();
-        }
-        $this->checkProfile();
-        $this->init->customer->profile->update(['language_id' => $translateLanguage->id]);
-        $this->init->customer->profile->refresh();
-        $this->profile();
-    }
-
-    public function chooseLanguage()
-    {
-        $this->deleteMainMessage();
-        $this->chooseLanguageMenu();
-    }
-
-    public function templateSetting()
-    {
-        if ((! isset($this->init->data->type) || ! $this->init->data->type)) {
-            $this->unknown();
-        }
-        if (! isset($this->init->data->value)) {
-            $this->unknown();
-        }
-        $this->checkProfile();
-        $this->init->customer->profile->update([$this->init->data->type => $this->init->data->value]);
-        $this->init->customer->profile->refresh();
-        $this->profile();
-    }
-
-    public function translateLanguage()
-    {
-        $this->delAll();
-        $this->deleteMainMessage();
-        $this->translateLanguageMenu();
     }
 
     public function sendMainButton($text, $button, $edit = false)
@@ -316,33 +174,6 @@ class TmCommon extends TmBase
         }
     }
 
-    public function sendBotInviteMessage()
-    {
-        $placeholder = [
-            '{name}' => $this->init->customer->actualPayment()->tariff->name,
-            '{valid_to}' => $this->init->customer->actualPayment()->valid_to,
-        ];
-        $text = $this->text('paidTariff', $placeholder);
-        $button[] = [['text' => $this->text('paidTariffButton'), 'url' => Setting::getGeneralItem('communityLink')]];
-        if ($messageId = $this->init->session->get('botInviteMessageId')) {
-            $response = $this->buttonEdit($text, $button, $messageId);
-            $this->saveBotInviteMessage($response);
-        } else {
-            $this->sendButton($text, $button);
-            $this->saveBotInviteMessage();
-        }
-    }
-
-    public function saveBotInviteMessage($response = null)
-    {
-        if ($response && isset($response['result']['message_id'])) {
-            return $this->init->session->set('botInviteMessageId', $response['result']['message_id']);
-        }
-        if (isset($this->response['result']['message_id'])) {
-            $this->init->session->set('botInviteMessageId', $this->response['result']['message_id']);
-        }
-    }
-
     public function deleteMainMessage()
     {
         $messageId = $this->init->session->get('mainMessageId');
@@ -365,11 +196,6 @@ class TmCommon extends TmBase
     public function delMainMenuData()
     {
         $this->init->session->del('mainMenuData');
-    }
-
-    public function help()
-    {
-        $this->init->action('f-lqs');
     }
 
     public function deleteCommand()
@@ -406,59 +232,6 @@ class TmCommon extends TmBase
     public function saveMessageIdToCommon($messageId): void
     {
         $this->init->session->saveCommonMessageId($messageId);
-    }
-
-    public function setBusinessDataMessageId()
-    {
-        if (isset($this->response['ok']) && $this->response['ok'] === true && isset($this->response['result']['message_id'])) {
-            $this->init->session->set('businessDataMessageId', $this->response['result']['message_id']);
-        }
-    }
-
-    public function editBusinessMessage(string $text): void
-    {
-        if ($messageId = $this->getBusinessDataMessageId()) {
-            $this->editMessageText($text, $messageId);
-        } else {
-            $this->sendMessage($text);
-            $this->setBusinessDataMessageId();
-        }
-    }
-
-    public function editBusinessMessageButton(string $text, array $buttons): void
-    {
-        if ($messageId = $this->getBusinessDataMessageId()) {
-            $this->buttonEdit($text, $buttons, $messageId);
-        } else {
-            $this->sendButton($text, $buttons);
-            $this->setBusinessDataMessageId();
-        }
-    }
-
-    public function getBusinessDataMessageId()
-    {
-        return $this->init->session->get('businessDataMessageId');
-    }
-
-    public function delBusinessDataMessage()
-    {
-        if ($messageId = $this->init->session->get('businessDataMessageId')) {
-            $this->deleteMessageByMessageId($messageId);
-            $this->init->session->del('businessDataMessageId');
-        }
-    }
-
-    public function getEvent(): ?Event
-    {
-        $eventId = $this->init->session->get('event');
-        if (! $eventId) {
-            $this->init->session->del('event');
-        }
-        if (isset($this->init->data->eid)) {
-            $eventId = $this->init->data->eid;
-        }
-
-        return ! $eventId ? null : Event::find($eventId);
     }
 
     public function setBackAction(array $action)
@@ -541,38 +314,6 @@ class TmCommon extends TmBase
         $buttons[] = [['text' => $buttonText, 'callback_data' => json_encode($callbackData)]];
 
         return $buttons;
-    }
-
-    public function getConfirmEditButtons(string $saveRoute, string $editRoute, array $additionalData = []): array
-    {
-        return [
-            [
-                'text' => $this->text('eventBusinessDataEditButton'), 'callback_data' => json_encode(array_merge(['a' => $editRoute], $additionalData)),
-            ],
-            [
-                'text' => $this->text('eventBusinessDataConfirmButton'), 'callback_data' => json_encode(array_merge(['a' => $saveRoute], $additionalData)),
-            ],
-        ];
-    }
-
-    public function getYesNoButtons(string $yesRoute, string $noRoute, array $additionalData = []): array
-    {
-        return [
-            [
-                'text' => $this->text('yesBtn'), 'callback_data' => json_encode(array_merge(['a' => $yesRoute], $additionalData)),
-            ],
-            [
-                'text' => $this->text('noBtn'), 'callback_data' => json_encode(array_merge(['a' => $noRoute], $additionalData)),
-            ],
-        ];
-    }
-
-    public function getEditButton(string $type): array
-    {
-        return [
-            [['text' => $this->text('editBtn'), 'callback_data' => json_encode(array_merge(['a' => $type.'_edit']))]],
-            [['text' => $this->text('deleteBtn'), 'callback_data' => json_encode(array_merge(['a' => 'delete']))]],
-        ];
     }
 
     public function delAll(): void

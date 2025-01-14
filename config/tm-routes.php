@@ -24,4 +24,28 @@ return [
         'class' => 'App\Bot\TmAuth',
         'method' => 'phoneSave'
     ],
+    'unsubscribed' => [
+        'class' => 'App\Bot\TmAuth',
+        'method' => 'unsubscribed'
+    ],
+    'a-aw' => [
+        'class' => 'App\Bot\TmAdmin',
+        'method' => 'assignWaiter'
+    ],
+    'w-av' => [
+        'class' => 'App\Bot\TmWaiter',
+        'method' => 'assignReserve'
+    ],
+    'w-ar' => [
+        'class' => 'App\Bot\TmWaiter',
+        'method' => 'assignReserve'
+    ],
+    'w-rv' => [
+        'class' => 'App\Bot\TmWaiter',
+        'method' => 'rejectReserve'
+    ],
+    'w-rr' => [
+        'class' => 'App\Bot\TmWaiter',
+        'method' => 'rejectReserve'
+    ],
 ];

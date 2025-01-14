@@ -74,8 +74,6 @@ class TmApi
 
     public function get($url)
     {
-        dump($this->url().$url);
-
         return $this->curl([
             'headers' => $this->headers(),
             'mode' => 'get',

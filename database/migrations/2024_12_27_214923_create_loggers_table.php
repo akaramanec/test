@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Customer;
+use App\Models\Bot\Customer;
 use App\Services\EloquentTableValuesTrait;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

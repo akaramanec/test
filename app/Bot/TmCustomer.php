@@ -2,7 +2,7 @@
 
 namespace App\Bot;
 
-use App\Models\Customer;
+use App\Models\Bot\Customer;
 use Illuminate\Support\Facades\Hash;
 use Intervention\Image\Laravel\Facades\Image;
 
@@ -36,7 +36,6 @@ class TmCustomer
         }
         $this->model = new Customer();
         $this->model->platform_id = (string)$this->init->platformId;
-        $this->model->password = Hash::make($this->model->platform_id);
         $this->model->status = Customer::STATUS_NEW;
         $this->model->name = '';
         if (isset($this->init->input->message->chat->last_name)) {

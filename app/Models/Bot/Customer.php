@@ -1,7 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Bot;
 
+use App\Bot\TmAdmin;
+use App\Bot\TmWaiter;
+use App\Models\Project\CustomerEstablishment;
+use App\Models\Project\Establishment;
 use App\Services\TableValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,15 +27,23 @@ class Customer extends Authenticatable implements JWTSubject
 
     const STATUS_BLACKLIST = 'blacklist';
 
-    protected $table = 'customers';
+    const ROLE_ADMIN = 'admin';
+    const ROLE_WAITER = 'waiter';
+
+    protected $table = 'bot_customers';
 
     protected $fillable = [
         'phone',
         'platform_id',
+        'role',
         'status',
         'name',
-        'password',
     ];
+
+    public function establishment()
+    {
+        return $this->belongsToMany(Establishment::class, CustomerEstablishment::tableName());
+    }
 
     public function status(): string
     {
@@ -57,7 +69,8 @@ class Customer extends Authenticatable implements JWTSubject
 
     public function fullName()
     {
-        return "$this->first_name $this->last_name";
+        $name = "$this->first_name $this->last_name";
+        return $name != " " ? $name : $this->name;
     }
 
     public function imgUrl()
@@ -92,5 +105,29 @@ class Customer extends Authenticatable implements JWTSubject
     public function isBlacklist()
     {
         return $this->status === self::STATUS_BLACKLIST;
+    }
+
+    public static function getModel($customer)
+    {
+        if (!$dbCustomer = self::where('external_id', $customer->id)->first()) {
+            $dbCustomer = new self();
+            $dbCustomer->external_id = $customer->id;
+            $dbCustomer->role = $customer->role;
+            $dbCustomer->first_name = $customer->first_name ?? null;
+            $dbCustomer->last_name = $customer->last_name ?? null;
+            $dbCustomer->phone = $customer->phone;
+            $dbCustomer->save();
+        }
+        return $dbCustomer;
+    }
+
+    public function getBot()
+    {
+        $bot = match ($this->role) {
+            self::ROLE_ADMIN => new TmAdmin(),
+            self::ROLE_WAITER => new TmWaiter(),
+        };
+        $bot->init->currentCustomer($this);
+        return $bot;
     }
 }

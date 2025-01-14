@@ -2,8 +2,8 @@
 
 namespace App\Bot;
 
+use App\Models\Bot\Text;
 use App\Models\Logger;
-use App\Models\Text;
 
 /**
  * @property $init \App\Bot\Telegram\TmInit
@@ -415,9 +415,9 @@ class TmBase
         ]);
     }
 
-    public function text($name, $data = [])
+    public function text(string $name, array $placeholders = [])
     {
-        return Text::item($name, $data);
+        return Text::getPrepared($name, $placeholders);
     }
 
     public function prepareText(string $text): string

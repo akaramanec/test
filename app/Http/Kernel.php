@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'api.log.requests' => \App\Http\Middleware\LogRequests::class,
         'auth:api' => \PHPOpenSourceSaver\JWTAuth\Http\Middleware\Authenticate::class,
+        'auth.token' => \App\Http\Middleware\EnsureTokenIsValid::class,
     ];
 }
