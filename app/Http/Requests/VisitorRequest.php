@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class InEstablishmentRequest extends FormRequest
+class VisitorRequest extends FormRequest
 {
     public function rules(): array
     {
@@ -14,7 +13,6 @@ class InEstablishmentRequest extends FormRequest
             'order_id' => ['required', 'string'],
             'reserve_id' => ['required', 'string'],
             'establishment_id' => ['required', 'string'],
-            'come_time' => ['required', 'date_format:Y-m-d H:i:s'],
         ];
     }
 }

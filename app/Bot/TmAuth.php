@@ -19,7 +19,7 @@ class TmAuth extends TmCommon
     public function phoneSave()
     {
         $this->init->session->saveCommonMessageId($this->init->messageId);
-        if ($this->validate('phone') && $customerData = TabsterService::getCustomerData($this->init->data->value)) {
+        if ($this->validate('phone') && $customerData = TabsterService::getWorker($this->init->data->value)) {
             $this->init->customer->phone = $this->init->data->value;
             $this->init->customer->status = Customer::STATUS_ACTIVE;
             $this->init->customer->role = $customerData['role'];

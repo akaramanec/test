@@ -2,26 +2,15 @@
 
 namespace App\Services\Tabster;
 
+use App\Models\Bot\Customer;
 use App\Models\Logger;
-use App\Models\Project\Establishment;
-use App\Models\Project\Order;
-use App\Models\Project\Reservation;
-use App\Models\Project\Table;
-use App\Models\Project\Visitor;
+use App\Models\Project\Notification;
 use Faker\Factory;
 
 class TabsterService
 {
 
-    public $faker;
-    public function __construct($fakerLocal = false)
-    {
-        if ($fakerLocal) {
-            $this->faker = Factory::create($fakerLocal);
-        }
-    }
-
-    public static function getCustomerData(string $phone)
+    public static function getWorker(string $phone)
     {
         return [
             'phone' => $phone,
@@ -33,20 +22,112 @@ class TabsterService
         ];
     }
 
-    public static function assignReserve(Reservation $reservation)
+    public static function getVisitor($id, $fake = null)
     {
-
-    }
-
-    public function getVisitor($id)
-    {
-        if ($this->faker) {
+        if ($fake) {
+            $fake = Factory::create('uk_UA');
             return [
                 'id' => $id,
-                'phone' => $this->faker->phoneNumber,
-                'name' => $this->faker->name,
+                'phone' => $fake->phoneNumber,
+                'name' => $fake->name,
             ];
         }
-        return $this->get('visitors/' . $id);
+        return (new TabsterApi())->get('/visitors/' . $id);
+    }
+
+    public static function getEstablishment($id, $fake = null)
+    {
+        if ($fake) {
+            return [
+                'id' => $id,
+                'name' => "CremeSoda",
+                'address' => "Gdeto nedaleko str., 111",
+                'phone' => "380999999999",
+            ];
+        }
+        return (new TabsterApi())->get('/establishments/');
+    }
+
+    public static function getWorkers($id, $fake = null)
+    {
+        if ($fake) {
+            return Customer::whereStatus(Customer::STATUS_ACTIVE)->whereNotNull('external_id')->pluck('external_id');
+        }
+        return (new TabsterApi())->get('/establishments/' . $id . '/workers');
+    }
+
+    public static function getOrder($orderId, $fake = null)
+    {
+        if ($fake) {
+            return [
+                'id' => $orderId,
+                'dishes' => "Mnogo mnogo vkusnoy edi",
+                'status' => "new",
+                'table' => [
+                    'id' => 1,
+                    'name' => "Table 1",
+                ]
+            ];
+        }
+        return (new TabsterApi())->get('/orders/' . $orderId);
+    }
+
+    public static function getReserve($reserveId, $fake = null)
+    {
+        if ($fake) {
+            $fake = Factory::create('uk_UA');
+            return [
+                'id' => $reserveId,
+                'dishes' => "Mnogo mnogo vkusnoy edi",
+                'status' => "new",
+                'establishment_id' => "establishment123",
+                'phone' => $fake->phoneNumber,
+                'table' => [
+                    'id' => "table123",
+                    'name' => "Table 1",
+                ]
+            ];
+        }
+        return (new TabsterApi())->get('/reserves/' . $reserveId);
+    }
+
+    public static function assignWaiter(Notification $notification)
+    {
+        $waiter = $notification->data['assigned_waiter_id'];
+        return (new TabsterApi())->post('/orders/' . $notification->data['order']['id'] . '/worker', [
+            'waiter_id' => $waiter
+        ]);
+    }
+
+    public static function composeOrderData(array $data)
+    {
+        $order = TabsterService::getOrder($data['order_id'], config('app.url') === 'https://base-bot.boto.kyiv.ua');
+        if (isset($data['waiter_id'])) $order['waiter_id'] = $data['waiter_id'];
+        if (isset($data['admin_id'])) $order['admin_id'] = $data['admin_id'];
+        if (isset($data['add'])) $order['add'] = $data['add'];
+        if (isset($data['pay_type'])) $order['pay_type'] = $data['pay_type'];
+        if (isset($data['add'])) $order['add'] = $data['add'];
+        if (!isset($order['visitor'])) {
+            $visitor = TabsterService::getVisitor($data['visitor_id'],
+                config('app.url') === 'https://base-bot.boto.kyiv.ua');
+            $order['visitor'] = $visitor;
+        }
+        return $order;
+    }
+
+    public static function composeReserveData(array $data)
+    {
+        $reserve = TabsterService::getReserve($data['reserve_id'], config('app.url') === 'https://base-bot.boto.kyiv.ua');
+        if (isset($data['admin_id'])) {
+            $reserve['admin_id'] = $data['admin_id'];
+        } else {
+            $reserve['worker_ids'] = TabsterService::getWorkers($reserve['establishment_id'], config('app.url') === 'https://base-bot.boto.kyiv.ua');
+        }
+        if (!isset($reserve['visitor'])) {
+            $visitor = TabsterService::getVisitor($data['visitor_id'],
+                config('app.url') === 'https://base-bot.boto.kyiv.ua');
+            $reserve['visitor'] = $visitor;
+        }
+        return $reserve;
     }
 }

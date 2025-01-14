@@ -3,36 +3,37 @@
 namespace App\Bot;
 
 use App\Jobs\SendAssignReserveJob;
+use App\Jobs\SendWaiterAssignTableJob;
 use App\Models\Bot\Customer;
 use App\Models\Bot\Text;
-use App\Models\Project\Reservation;
-use App\Services\Project\ReservationService;
+use App\Models\Logger;
+use App\Models\Project\Notification;
+use App\Services\Project\InEstablishmentService;
 
 class TmAdmin extends TmCommon
 {
-    public function visitorIn(Reservation $reservation)
+    public function visitorIn(Notification $notification)
     {
-        if ($this->init->platformId == 7895444089) exit(__METHOD__.' '.__LINE__); // TODO: remove this line after testing
-
-        $placeholders = ReservationService::getTextPlaceholders($reservation);
+        $placeholders = InEstablishmentService::getPlaceholders($notification);
         $text = Text::getPrepared('visitorIn', $placeholders);
         $buttons = [];
-        if ($reservation->establishment->workers) {
-            foreach ($reservation->establishment->waiters as $worker) {
-                $buttons[] = [[
-                    'text' => $worker->fullName(),
-                    'callback_data' => json_encode([
-                        'a' => 'a-aw',
-                        'wid' => $worker->id,
-                        'rid' => $reservation->id,
-                    ]),
-                ]];
-            }
+        $waiters = Customer::whereIn('id', $notification->data['waiters'])->get();
+        /** @var Customer $waiter */
+        foreach ($waiters as $waiter) {
+            $buttons[] = [[
+                'text' => $waiter->fullName(),
+                'callback_data' => json_encode([
+                    'a' => 'a-aw',
+                    'wid' => $waiter->id,
+                    'nid' => $notification->id,
+                ]),
+            ]];
         }
 
         $this->sendButton($this->prepareText($text), $buttons);
         $this->saveResponseMessageIdToCommon();
-        ReservationService::updateMessageIds($reservation, $this->init->customer->id, $this->response['result']['message_id']);
+        Logger::commit([$this->init->customer->id, $this->response['result']['message_id']], __METHOD__);
+        InEstablishmentService::saveMessageId($notification, $this->init->customer->id, $this->response['result']['message_id']);
     }
 
     public function assignWaiter()
@@ -40,20 +41,45 @@ class TmAdmin extends TmCommon
         /** @var Customer $waiter */
         if (!isset($this->init->data->wid) || !($waiter = Customer::whereId($this->init->data->wid)->first())) {
             $this->unknown();
-            return true;
         }
 
-        /** @var Reservation $reservation */
-        if (!isset($this->init->data->rid) || !($reservation = Reservation::whereId($this->init->data->rid)->first())) {
+        /** @var Notification $notification */
+        if (!isset($this->init->data->nid) || !($notification = Notification::whereId($this->init->data->nid)->first())) {
             $this->unknown();
-            return true;
         }
-        $reservation->update(['customer_id' => $waiter->id, 'status' => Reservation::STATUS_ACCEPTED]);
-        $reservation->refresh();
+
+        InEstablishmentService::deleteMessages($notification);
+        $placeholders = InEstablishmentService::getPlaceholders($notification);
         $waiterBot = $waiter->getBot();
-        $placeholders = ReservationService::getTextPlaceholders($reservation);
         $waiterBot->sendMessage(Text::getPrepared('adminAssigned', $placeholders));
         $waiterBot->saveResponseMessageIdToCommon();
-        ReservationService::deleteMessages($reservation);
+        InEstablishmentService::deleteMessages($notification);
+        $data = $notification->data;
+        $data['assigned_by'] = Customer::ROLE_ADMIN;
+        $data['assigned_waiter_id'] = $waiter->external_id;
+        $notification->update(['status' => 'done', 'data' => $data]);
+        SendWaiterAssignTableJob::dispatch($notification);
+    }
+
+    public function visitorLate(array $data)
+    {
+        $placeholders = [
+            '{visitor}' => $data['visitor']['name'],
+            '{phone}' => $data['visitor']['phone'],
+            '{table}' => $data['table']['name'],
+        ];
+        $text = Text::getPrepared('visitorLate', $placeholders);
+        $this->sendMessage($text);
+    }
+
+    public function visitorReject(array $data)
+    {
+        $placeholders = [
+            '{visitor}' => $data['visitor']['name'],
+            '{phone}' => $data['visitor']['phone'],
+            '{table}' => $data['table']['name'],
+        ];
+        $text = Text::getPrepared('visitorReject', $placeholders);
+        $this->sendMessage($text);
     }
 }
