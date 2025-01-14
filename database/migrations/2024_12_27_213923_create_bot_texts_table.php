@@ -12,7 +12,7 @@ return new class extends Migration
 
     public function up()
     {
-        Schema::create('texts', function (Blueprint $table) {
+        Schema::create('bot_texts', function (Blueprint $table) {
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
 
@@ -25,6 +25,6 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('texts');
+        Schema::dropIfExists('bot_texts');
     }
 };
