@@ -115,7 +115,7 @@ return [
     */
 
     'inject_assets' => true,
-
+    'asset_url' => env('LIVEWIRE_ASSET_URL', null),
     /*
     |---------------------------------------------------------------------------
     | Navigate (SPA mode)
