@@ -3,7 +3,7 @@ set -e
 
 cd /var/www/html
 echo "Running migrations (safe) ..."
-php artisan migrate --force || true
+php artisan migrate --force --seed || true
 
 echo "Clearing caches..."
 php artisan config:clear
