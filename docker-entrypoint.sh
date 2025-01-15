@@ -16,5 +16,6 @@ php artisan view:cache
 php artisan optimize
 php artisan queue:restart || true
 php artisan vendor:publish --force --tag=livewire:assets
+php artisan db:seed --class=AdminUserSeeder
 
 exec "$@"
