@@ -37,15 +37,18 @@ class VisitorController extends Controller
     public function evaluate(EvaluationRequest $request)
     {
         VisitorJob::dispatch($request->all(), 'evaluate');
+        return response()->json(['status' => 'ok'], Response::HTTP_OK);
     }
 
     public function late(VisitorRequest $request)
     {
         AdminNotifyJob::dispatch($request->all(), 'late');
+        return response()->json(['status' => 'ok'], Response::HTTP_OK);
     }
 
     public function reject(VisitorRequest $request)
     {
         AdminNotifyJob::dispatch($request->all(), 'reject');
+        return response()->json(['status' => 'ok'], Response::HTTP_OK);
     }
 }
