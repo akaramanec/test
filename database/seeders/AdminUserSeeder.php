@@ -18,6 +18,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Admin',
                 'email' => 'admin@ad.min',
+                'email_verified_at' => now()->subDay()->toDateTimeString(),
                 'password' => Hash::make('admin@ad.min'),
             ],
         );
@@ -25,6 +26,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Olexandr Karamanec',
                 'email' => 'o.karamanec@tabster.online',
+                'email_verified_at' => now()->subDay()->toDateTimeString(),
                 'password' => Hash::make('o.karamanec@tabster.online'),
             ],
         );
