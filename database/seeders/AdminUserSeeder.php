@@ -14,21 +14,27 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create(
+        $users = [
             [
                 'name' => 'Admin',
                 'email' => 'admin@ad.min',
-                'email_verified_at' => now()->subDay()->toDateTimeString(),
-                'password' => Hash::make('admin@ad.min'),
             ],
-        );
-        User::create(
             [
                 'name' => 'Olexandr Karamanec',
                 'email' => 'o.karamanec@tabster.online',
-                'email_verified_at' => now()->subDay()->toDateTimeString(),
-                'password' => Hash::make('o.karamanec@tabster.online'),
             ],
-        );
+        ];
+
+        foreach ($users as $userData) {
+            User::where('email', $userData['email'])->delete();
+
+            // Створюємо нового користувача
+            User::create([
+                'name' => $userData['name'],
+                'email' => $userData['email'],
+                'email_verified_at' => now()->subDay()->toDateTimeString(),
+                'password' => Hash::make($userData['email']),
+            ]);
+        }
     }
 }
