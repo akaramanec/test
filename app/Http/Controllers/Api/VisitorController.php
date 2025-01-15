@@ -14,7 +14,7 @@ use Illuminate\Http\Response;
 
 class VisitorController extends Controller
 {
-    public function inEstablishment(InEstablishmentRequest $request)
+    public function in(InEstablishmentRequest $request)
     {
         $key = "$request->reserve_id-" . today()->toDateString();
         if (Notification::where('key', $key)->exists()) {

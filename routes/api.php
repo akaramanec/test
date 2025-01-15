@@ -23,7 +23,7 @@ Route::group([
     'prefix' => 'v1'
 ], function () {
     Route::group(['prefix' => 'visitor'], function () {
-        Route::post('in-establishment', [VisitorController::class, 'inEstablishment']);
+        Route::post('in', [VisitorController::class, 'in']);
         Route::post('evaluate', [VisitorController::class, 'evaluate']);
         Route::post('late', [VisitorController::class, 'late']);
         Route::post('reject', [VisitorController::class, 'reject']);
