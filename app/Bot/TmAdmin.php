@@ -48,7 +48,6 @@ class TmAdmin extends TmCommon
             $this->unknown();
         }
 
-        InEstablishmentService::deleteMessages($notification);
         $placeholders = InEstablishmentService::getPlaceholders($notification);
         $waiterBot = $waiter->getBot();
         $waiterBot->sendMessage(Text::getPrepared('adminAssigned', $placeholders));
