@@ -10,12 +10,13 @@ use App\Models\Logger;
 use App\Models\Project\Notification;
 use App\Services\Project\InEstablishmentService;
 use App\Services\Project\OrderService;
+use App\Services\Tabster\TabsterService;
 
 class TmWaiter extends TmCommon
 {
     public function visitorIn(Notification $notification)
     {
-        $placeholders = InEstablishmentService::getPlaceholders($notification);
+        $placeholders = TabsterService::getPlaceholdersFromNotification($notification);
         $text = Text::getPrepared('visitorIn', $placeholders);
         $buttons[] = [
             [
@@ -57,36 +58,36 @@ class TmWaiter extends TmCommon
         InEstablishmentService::deleteMessageForWaiter($notification, $this);
     }
 
-    private function handleMessage(string $template, array $orderData)
+    private function handleMessage(string $template, array $data)
     {
-        $placeholders = OrderService::getPlaceholders($orderData);
+        $placeholders = TabsterService::getPlaceholdersFromData($data);
         $text = Text::getPrepared($template, $placeholders);
         $this->sendMessage($text);
         $this->saveResponseMessageIdToCommon();
     }
 
-    public function orderAdditional(array $orderData)
+    public function orderAdditional(array $data)
     {
-        $this->handleMessage('orderAdditional', $orderData);
+        $this->handleMessage('orderAdditional', $data);
     }
 
-    public function orderPay(array $orderData)
+    public function orderPay(array $data)
     {
-        $this->handleMessage('orderPay', $orderData);
+        $this->handleMessage('orderPay', $data);
     }
 
-    public function orderPaid(array $orderData)
+    public function orderPaid(array $data)
     {
-        $this->handleMessage('orderPaid', $orderData);
+        $this->handleMessage('orderPaid', $data);
     }
 
-    public function orderCall(array $orderData)
+    public function orderCall(array $data)
     {
-        $this->handleMessage('orderCall', $orderData);
+        $this->handleMessage('orderCall', $data);
     }
 
-    public function visitorEvaluate(array $orderData)
+    public function visitorEvaluate(array $data)
     {
-        $this->handleMessage('visitorEvaluate', $orderData);
+        $this->handleMessage('visitorEvaluate', $data);
     }
 }

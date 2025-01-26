@@ -27,23 +27,6 @@ class InEstablishmentJob implements ShouldQueue
 
     public function handle()
     {
-        $visitor = TabsterService::getVisitor($this->notification->data['visitor_id'], $this->fake);
-        $order = TabsterService::getOrder($this->notification->data['order_id'], $this->fake);
-        $workerIds = TabsterService::getWorkers($this->notification->data['establishment_id'], $this->fake);
-
-        $workers = Customer::whereIn('external_id', $workerIds)->get();
-        $waiters = Customer::whereIn('external_id', $workerIds)->where('role', Customer::ROLE_WAITER)->get();
-
-        $this->notification->update([
-            'data' => [
-                'visitor' => $visitor,
-                'order' => $order,
-                'waiters' => $waiters->pluck('id'),
-                'workers' => $workers->pluck('id'),
-                'come_time' => $this->notification->data['come_time']
-            ]
-        ]);
-        $this->notification->refresh();
         InEstablishmentService::sendMessages($this->notification);
     }
 }

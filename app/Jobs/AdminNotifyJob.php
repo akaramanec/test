@@ -25,19 +25,16 @@ class AdminNotifyJob implements ShouldQueue
 
     public function handle()
     {
-        $reserve = TabsterService::composeReserveData($this->data);
-        if (isset($reserve['admin_id'])) {
-            $admin = Customer::where('external_id', $reserve['admin_id'])->first();
-        } else {
-            $admin = Customer::whereIn('external_id', $reserve['worker_ids'])->where('role', Customer::ROLE_ADMIN)->first();
-        }
+        $admins = Customer::whereIn('external_id', array_column($this->data['workers']['admins'], 'id'))->get();
         /** @var Customer $waiter */
-        if ($admin) {
-            $bot = $admin->getBot();
-            match ($this->type) {
-                'late' => $bot->visitorLate($reserve),
-                'reject' => $bot->visitorReject($reserve),
-            };
+        if ($admins) {
+            foreach ($admins as $admin) {
+                $bot = $admin->getBot();
+                match ($this->type) {
+                    'late' => $bot->visitorLate($this->data),
+                    'reject' => $bot->visitorReject($this->data),
+                };
+            }
         }
     }
 }

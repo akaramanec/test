@@ -8,6 +8,7 @@ use App\Models\Logger;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\ComponentContainer;
+use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\View;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -32,11 +33,13 @@ class LoggerResource extends Resource
     public static function getHeaderActions(): array
     {
         return [
-            Action::make('Open Bot Info')
-                ->url(route('bot.info'))
-                ->label('Bot Info')
-                ->color('primary')
-                ->openUrlInNewTab(), // Відкриття у новій вкладці
+            Actions::make([
+                Action::make('Open Bot Info')
+                    ->url(route('bot.info'))
+                    ->label('Bot Info')
+                    ->color('primary')
+                    ->openUrlInNewTab(), // Відкриття у новій вкладці
+            ]),
 
 //                ->form([
 //                    // Поля модального вікна
@@ -93,6 +96,7 @@ class LoggerResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()->hiddenLabel(),
+                Tables\Actions\DeleteAction::make()->hiddenLabel(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

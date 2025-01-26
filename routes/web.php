@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Bot\BotTestController;
+use App\Http\Controllers\Bot\BotController;
+use App\Http\Controllers\Bot\HomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,5 +15,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/bot-test', BotTestController::class);
-Route::get('/bot/info', BotTestController::class)->name('bot.info');
+Route::get('/bot/make', [BotController::class, 'make'])->name('bot.make');
+Route::get('/bot/info', [BotController::class, 'info'])->name('bot.info');
+Route::get('/test', [HomeController::class, 'test'])->name('bot.test');

@@ -8,21 +8,16 @@ use App\Models\Project\Notification;
 
 class InEstablishmentService
 {
-    public static function getPlaceholders(Notification $notification)
-    {
-        return [
-            '{visitor}' => $notification->data['visitor']['name'],
-            '{dishes}' => $notification->data['order']['dishes'] != ""
-                ? $notification->data['order']['dishes']
-                : Text::getPrepared('noPreOrderDishes'),
-            '{come_time}' => $notification->data['come_time'],
-            '{table}' => $notification->data['order']['table'],
-        ];
-    }
 
     public static function sendMessages(Notification $notification)
     {
-        $workers = Customer::whereIn('id', $notification->data['workers'])->get();
+        $workers = $notification->data['workers'];
+        $allIds = [];
+        foreach ($workers as $role => $workerGroup) {
+            $ids = array_column($workerGroup, 'id');
+            $allIds = array_merge($allIds, $ids);
+        }
+        $workers = Customer::whereIn('external_id', $allIds)->get();
         /** @var Customer $worker */
         foreach ($workers as $worker) {
             $bot = $worker->getBot();

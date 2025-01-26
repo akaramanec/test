@@ -26,16 +26,16 @@ class OrderJob implements ShouldQueue
 
     public function handle()
     {
-        $order = TabsterService::composeOrderData($this->data);
-        $waiter = Customer::where('external_id', $order['waiter_id'])->first();
+        $waiter = Customer::where('external_id', $this->data['waiter_id'])->first();
         /** @var Customer $waiter */
         if ($waiter) {
             $bot = $waiter->getBot();
             match ($this->type) {
-                'pay' => $bot->orderPay($order),
-                'paid' => $bot->orderPaid($order),
-                'add' => $bot->orderAdditional($order),
-                'call' => $bot->orderCall($order)
+                'pay' => $bot->orderPay($this->data),
+                'paid' => $bot->orderPaid($this->data),
+                'add' => $bot->orderAdditional($this->data),
+                'call' => $bot->orderCall($this->data),
+                'evaluate' => $bot->visitorEvaluate($this->data),
             };
         }
     }

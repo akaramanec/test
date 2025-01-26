@@ -25,13 +25,12 @@ class VisitorJob implements ShouldQueue
 
     public function handle()
     {
-        $order = TabsterService::composeOrderData($this->data);
-        $waiter = Customer::where('external_id', $order['waiter_id'])->first();
+        $waiter = Customer::where('external_id', $this->data['assigned_waiter_id'])->first();
         /** @var Customer $waiter */
         if ($waiter) {
             $bot = $waiter->getBot();
             match ($this->type) {
-                'evaluate' => $bot->visitorEvaluate($order),
+                'evaluate' => $bot->visitorEvaluate($this->data),
             };
         }
     }

@@ -14,9 +14,9 @@ use Illuminate\Http\Response;
 
 class VisitorController extends Controller
 {
-    public function in(InEstablishmentRequest $request)
+    public function in(VisitorRequest $request)
     {
-        $key = "$request->reserve_id-" . today()->toDateString();
+        $key = "$request->reservation_id-" . today()->toDateString();
         if (Notification::where('key', $key)->exists()) {
             return response()->json(['status' => 'ok'], Response::HTTP_OK);
         }
@@ -32,12 +32,6 @@ class VisitorController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage(), 'trace' => $e->getTrace()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         return response()->json(['status' => 'ok'], Response::HTTP_CREATED);
-    }
-
-    public function evaluate(EvaluationRequest $request)
-    {
-        VisitorJob::dispatch($request->all(), 'evaluate');
-        return response()->json(['status' => 'ok'], Response::HTTP_OK);
     }
 
     public function late(VisitorRequest $request)

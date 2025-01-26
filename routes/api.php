@@ -13,6 +13,7 @@ Route::group([
     'prefix' => 'bot'
 ], function () {
     Route::post('telegram', [HookController::class, 'telegram']);
+    Route::post('info', [HookController::class, 'telegram']);
 });
 Route::group([
     'middleware' => [
@@ -23,16 +24,16 @@ Route::group([
     'prefix' => 'v1'
 ], function () {
     Route::group(['prefix' => 'visitor'], function () {
-        Route::post('in', [VisitorController::class, 'in']);
-        Route::post('evaluate', [VisitorController::class, 'evaluate']);
-        Route::post('late', [VisitorController::class, 'late']);
-        Route::post('reject', [VisitorController::class, 'reject']);
+        Route::post('in', [VisitorController::class, 'in'])->name('visitor.in');
+        Route::post('late', [VisitorController::class, 'late'])->name('visitor.late');
+        Route::post('reject', [VisitorController::class, 'reject'])->name('visitor.reject');
     });
     Route::group(['prefix' => 'order'], function () {
-        Route::post('add', [OrderController::class, 'add']);
-        Route::post('pay', [OrderController::class, 'pay']);
-        Route::post('paid', [OrderController::class, 'paid']);
-        Route::post('call', [OrderController::class, 'call']);
+        Route::post('add', [OrderController::class, 'add'])->name('order.add');
+        Route::post('pay', [OrderController::class, 'pay'])->name('order.pay');
+        Route::post('paid', [OrderController::class, 'paid'])->name('order.paid');
+        Route::post('call', [OrderController::class, 'call'])->name('order.call');
+        Route::post('evaluate', [OrderController::class, 'evaluate'])->name('order.evaluate');
     });
     Route::get('test', [HookController::class, 'test']);
 });

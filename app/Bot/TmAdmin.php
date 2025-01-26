@@ -9,15 +9,16 @@ use App\Models\Bot\Text;
 use App\Models\Logger;
 use App\Models\Project\Notification;
 use App\Services\Project\InEstablishmentService;
+use App\Services\Tabster\TabsterService;
 
 class TmAdmin extends TmCommon
 {
     public function visitorIn(Notification $notification)
     {
-        $placeholders = InEstablishmentService::getPlaceholders($notification);
+        $placeholders = TabsterService::getPlaceholdersFromNotification($notification);
         $text = Text::getPrepared('visitorIn', $placeholders);
         $buttons = [];
-        $waiters = Customer::whereIn('id', $notification->data['waiters'])->get();
+        $waiters = Customer::whereIn('external_id', array_column($notification->data['workers']['waiters'], 'id'))->get();
         /** @var Customer $waiter */
         foreach ($waiters as $waiter) {
             $buttons[] = [[
@@ -48,7 +49,7 @@ class TmAdmin extends TmCommon
             $this->unknown();
         }
 
-        $placeholders = InEstablishmentService::getPlaceholders($notification);
+        $placeholders = TabsterService::getPlaceholdersFromNotification($notification);
         $waiterBot = $waiter->getBot();
         $waiterBot->sendMessage(Text::getPrepared('adminAssigned', $placeholders));
         $waiterBot->saveResponseMessageIdToCommon();
@@ -62,22 +63,14 @@ class TmAdmin extends TmCommon
 
     public function visitorLate(array $data)
     {
-        $placeholders = [
-            '{visitor}' => $data['visitor']['name'],
-            '{phone}' => $data['visitor']['phone'],
-            '{table}' => $data['table']['name'],
-        ];
+        $placeholders = TabsterService::getPlaceholdersFromData($data);
         $text = Text::getPrepared('visitorLate', $placeholders);
         $this->sendMessage($text);
     }
 
     public function visitorReject(array $data)
     {
-        $placeholders = [
-            '{visitor}' => $data['visitor']['name'],
-            '{phone}' => $data['visitor']['phone'],
-            '{table}' => $data['table']['name'],
-        ];
+        $placeholders = TabsterService::getPlaceholdersFromData($data);
         $text = Text::getPrepared('visitorReject', $placeholders);
         $this->sendMessage($text);
     }

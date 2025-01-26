@@ -14,9 +14,4 @@ class HookController extends Controller
         Logger::commit($input, __METHOD__);
         $tmInit->run(json_decode($input));
     }
-
-    public function test()
-    {
-        return response()->json(['message' => 'Hello, World!']);
-    }
 }

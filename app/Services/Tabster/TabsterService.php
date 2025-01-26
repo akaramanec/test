@@ -3,6 +3,7 @@
 namespace App\Services\Tabster;
 
 use App\Models\Bot\Customer;
+use App\Models\Bot\Text;
 use App\Models\Logger;
 use App\Models\Project\Notification;
 use Faker\Factory;
@@ -94,9 +95,53 @@ class TabsterService
     public static function assignWaiter(Notification $notification)
     {
         $waiter = $notification->data['assigned_waiter_id'];
-        return (new TabsterApi())->post('/orders/' . $notification->data['order']['id'] . '/worker', [
+        return (new TabsterApi())->post('/orders/' . $notification->data['order_id'] . '/worker', [
             'waiter_id' => $waiter
         ]);
+    }
+
+    public static function getPlaceholdersFromNotification(Notification $notification)
+    {
+        $dishes = '';
+        foreach ($notification->data['dish_list']['dishes'] as $key => $dish) {
+            $dishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
+        }
+        if (!$dishes) {
+            $dishes = Text::getPrepared('noPreOrderDishes');
+        }
+
+        $data = self::getPlaceholdersFromData($notification->data);
+        $data['{dishes}'] = $dishes;
+        $data['{come_time}'] = $notification->data['come_time'];
+        return $data;
+    }
+
+    public static function getPlaceholdersFromData(array $data)
+    {
+        $dishes = '';
+        $addDishes = '';
+
+        if (isset($notification->data['dish_list'])) {
+            if (isset($notification->data['dish_list']['dishes'])) {
+                foreach ($notification->data['dish_list']['dishes'] as $key => $dish) {
+                    $dishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
+                }
+            }
+            if (isset($notification->data['dish_list']['add_dishes'])) {
+                foreach ($notification->data['dish_list']['add_dishes'] as $key => $dish) {
+                    $addDishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
+                }
+            }
+        }
+
+        return [
+            '{visitor_name}' => $data['user']['name'],
+            '{visitor_phone}' => $data['user']['phone'],
+            '{pay_type}' => $data['pay_type'] ?? '',
+            '{table}' => $data['table']['name'],
+            '{dishes}' => $dishes,
+            '{add_dishes}' => $addDishes,
+        ];
     }
 
     public static function composeOrderData(array $data)

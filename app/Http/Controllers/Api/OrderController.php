@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderRequest;
 use App\Jobs\OrderJob;
+use App\Jobs\VisitorJob;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -31,6 +32,12 @@ class OrderController extends Controller
     public function call(OrderRequest $request)
     {
         OrderJob::dispatch($request->all(), 'call');
+        return response()->json(['status' => 'ok'], Response::HTTP_OK);
+    }
+
+    public function evaluate(OrderRequest $request)
+    {
+        OrderJob::dispatch($request->all(), 'evaluate');
         return response()->json(['status' => 'ok'], Response::HTTP_OK);
     }
 }
