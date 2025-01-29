@@ -60,8 +60,20 @@ RUN rm /etc/nginx/sites-enabled/default && \
     > /etc/nginx/sites-available/laravel.conf && \
     ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/laravel.conf
 
-RUN echo "[supervisord]\nnodaemon=true\n\n[program:php-fpm]\ncommand=/usr/sbin/php-fpm8.2 -F\nautostart=true\nredirect_stderr=true\n\n[program:nginx]\ncommand=nginx -g 'daemon off;'\nautostart=true\nredirect_stderr=true" \
+RUN echo "[supervisord]\nnodaemon=true\n\n" \
 > /etc/supervisor/conf.d/supervisord.conf
+
+RUN echo "[program:php-fpm]\ncommand=/usr/sbin/php-fpm8.2 -F\nautostart=true\nredirect_stderr=true\n" \
+>> /etc/supervisor/conf.d/supervisord.conf
+
+RUN echo "[program:nginx]\ncommand=nginx -g 'daemon off;'\nautostart=true\nredirect_stderr=true\n" \
+>> /etc/supervisor/conf.d/supervisord.conf
+
+RUN echo "[program:laravel-queue]\nprocess_name=%(program_name)s_%(process_num)02d\n" \
+"command=php /var/www/html/artisan queue:work --tries=3 --timeout=90\n" \
+"autostart=true\nautorestart=true\nnumprocs=1\nredirect_stderr=true\n" \
+"stdout_logfile=/var/www/html/storage/logs/laravel-queue.log\n" \
+>> /etc/supervisor/conf.d/supervisord.conf
 
 RUN echo "* * * * * cd /var/www/html && /usr/bin/php artisan schedule:run >> /dev/null 2>&1" >> /etc/crontab
 
