@@ -36,15 +36,10 @@ class TmWaiter extends TmCommon
 
     public function assignReserve()
     {
-        /** @var Notification $notification */
         if (!isset($this->init->data->nid) || !($notification = Notification::whereId($this->init->data->nid)->first())) {
             $this->unknown();
         }
-
-        $data = $notification->data;
-        $data['assigned_by'] = Customer::ROLE_WAITER;
-        $data['assigned_waiter_id'] = $this->init->customer->external_id;
-        $notification->update(['status' => 'done', 'data' => $data]);
+        $notification->addData(['assigned_by' => Customer::ROLE_ADMIN, 'assigned_waiter_id' => $this->init->customer->external_id]);
         InEstablishmentService::deleteMessages($notification);
         SendWaiterAssignTableJob::dispatch($notification);
     }

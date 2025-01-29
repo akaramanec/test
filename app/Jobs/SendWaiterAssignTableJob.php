@@ -24,6 +24,7 @@ class SendWaiterAssignTableJob implements ShouldQueue
 
     public function handle()
     {
-        TabsterService::assignWaiter($this->notification);
+        [$responseData, $requestData] = TabsterService::assignWaiter($this->notification);
+        $this->notification->addData(['api_request_data' => $requestData, 'api_response' => $responseData]);
     }
 }

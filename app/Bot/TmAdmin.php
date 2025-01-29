@@ -54,10 +54,7 @@ class TmAdmin extends TmCommon
         $waiterBot->sendMessage(Text::getPrepared('adminAssigned', $placeholders));
         $waiterBot->saveResponseMessageIdToCommon();
         InEstablishmentService::deleteMessages($notification);
-        $data = $notification->data;
-        $data['assigned_by'] = Customer::ROLE_ADMIN;
-        $data['assigned_waiter_id'] = $waiter->external_id;
-        $notification->update(['status' => 'done', 'data' => $data]);
+        $notification->addData(['assigned_by' => Customer::ROLE_ADMIN, 'assigned_waiter_id' => $waiter->external_id]);
         SendWaiterAssignTableJob::dispatch($notification);
     }
 

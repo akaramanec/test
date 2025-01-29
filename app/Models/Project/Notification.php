@@ -2,9 +2,9 @@
 
 namespace App\Models\Project;
 
-use App\Models\Bot\Customer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Notification extends Model
 {
@@ -29,4 +29,25 @@ class Notification extends Model
         'data' => 'array',
         'message_ids' => 'array',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            do {
+                $uuid = Str::uuid()->toString();
+            } while (self::where('uuid', $uuid)->exists());
+
+            $model->uuid = $uuid;
+        });
+    }
+
+    public function addData(array $addData)
+    {
+        $data = $this->data;
+        $data = array_merge($data, $addData);
+        $this->update(['data' => $data]);
+        $this->refresh();
+    }
 }
