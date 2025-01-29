@@ -16,6 +16,7 @@ class VisitorRequest extends FormRequest
             'user.id' => ['required', 'string'],
             'user.name' => ['required', 'string'],
 
+            'restaurant_id' => [request()->route()->getName() == 'visitor.in' ? 'required' : 'nullable', 'string'],
             'come_time' => [request()->route()->getName() == 'visitor.in' ? 'required' : 'nullable', 'date_format:Y-m-d H:i:s'],
             'evaluate' => [request()->route()->getName() == 'visitor.evaluate' ? 'required' : 'nullable', 'numeric'],
 
