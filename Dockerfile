@@ -54,26 +54,24 @@ RUN php artisan storage:link || true
 
 RUN php artisan vendor:publish --force --tag=livewire:assets
 
-
 RUN rm /etc/nginx/sites-enabled/default && \
-    echo "server { listen 80; root /var/www/html/public; index index.php; location / { try_files \$uri \$uri/ /index.php?\$query_string; } location ~ \\.php\$ { include snippets/fastcgi-php.conf; fastcgi_pass 127.0.0.1:9000; } }" \
-    > /etc/nginx/sites-available/laravel.conf && \
+    echo "server { \
+        listen 80; \
+        root /var/www/html/public; \
+        index index.php; \
+        types_hash_max_size 2048; \
+        types_hash_bucket_size 128; \
+        location / { \
+            try_files \$uri \$uri/ /index.php?\$query_string; \
+        } \
+        location ~ \\.php\$ { \
+            include snippets/fastcgi-php.conf; \
+            fastcgi_pass 127.0.0.1:9000; \
+        } \
+    }" > /etc/nginx/sites-available/laravel.conf && \
     ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/laravel.conf
 
-RUN echo -e "[supervisord]\nnodaemon=true\n\n" \
-> /etc/supervisor/conf.d/supervisord.conf
-
-RUN echo -e "[program:php-fpm]\ncommand=/usr/sbin/php-fpm8.2 -F\nautostart=true\nredirect_stderr=true\n" \
->> /etc/supervisor/conf.d/supervisord.conf
-
-RUN echo -e "[program:nginx]\ncommand=nginx -g 'daemon off;'\nautostart=true\nredirect_stderr=true\n" \
->> /etc/supervisor/conf.d/supervisord.conf
-
-RUN echo -e "[program:laravel-queue]\nprocess_name=%(program_name)s_%(process_num)02d\n" \
-"command=php /var/www/html/artisan queue:work --tries=3 --timeout=90\n" \
-"autostart=true\nautorestart=true\nnumprocs=1\nredirect_stderr=true\n" \
-"stdout_logfile=/var/www/html/storage/logs/laravel-queue.log\n" \
->> /etc/supervisor/conf.d/supervisord.conf
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN echo "* * * * * cd /var/www/html && /usr/bin/php artisan schedule:run >> /dev/null 2>&1" >> /etc/crontab
 
