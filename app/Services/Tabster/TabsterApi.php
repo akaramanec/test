@@ -23,7 +23,7 @@ class TabsterApi
             $this->faker = Factory::create($fakerLocal);
         }
         $this->url = config('tabster.url');
-        $this->token = config('tabster.token');
+        $this->token = config('tabster.token_api');
     }
 
     private function curl($options = [])
@@ -60,6 +60,7 @@ class TabsterApi
             'Accept: application/json',
             'Cache-Control: no-cache',
             'Content-Type: application/json; charset=UTF-8',
+            'Authorization: Bearer ' . $this->token,
         ];
     }
 
