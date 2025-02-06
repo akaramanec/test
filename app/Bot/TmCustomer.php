@@ -50,29 +50,29 @@ class TmCustomer
         $this->model->name = trim($this->model->name);
         $this->model->save();
         $this->model->refresh();
-        $this->getPhotos();
+//        $this->getPhotos();
     }
 
-    public function getPhotos()
-    {
-        $photos = $this->bot->getUserProfilePhotos($this->init->platformId);
-        if (isset($photos['result']['photos'][0][0])) {
-            $file = $this->bot->getFileData($photos['result']['photos'][0][0]['file_id']);
-            $pathDirectory = storage_path('app') . '/public/customer/' . $this->model->id . '/';
-            @mkdir($pathDirectory, 0777, true);
-            $file_path = explode('.', $file['result']['file_path']);
-            $extension = '.' . $file_path[1];
-            if (isset($file['result']['file_path'])) {
-                $url = 'https://api.telegram.org/file/bot' . config('app.token_tm') . '/' . $file['result']['file_path'];
-                $fullPath = $pathDirectory . 'avatar' . $extension;
-                if (file_put_contents($fullPath, file_get_contents($url))) {
-                    @chmod($fullPath, 0777);
-                    Image::make($fullPath)->encode('jpg', 80)->save($pathDirectory . 'avatar.jpg');
-                    return true;
-                }
-            }
-        }
-    }
+//    public function getPhotos()
+//    {
+//        $photos = $this->bot->getUserProfilePhotos($this->init->platformId);
+//        if (isset($photos['result']['photos'][0][0])) {
+//            $file = $this->bot->getFileData($photos['result']['photos'][0][0]['file_id']);
+//            $pathDirectory = storage_path('app') . '/public/customer/' . $this->model->id . '/';
+//            @mkdir($pathDirectory, 0777, true);
+//            $file_path = explode('.', $file['result']['file_path']);
+//            $extension = '.' . $file_path[1];
+//            if (isset($file['result']['file_path'])) {
+//                $url = 'https://api.telegram.org/file/bot' . config('app.token_tm') . '/' . $file['result']['file_path'];
+//                $fullPath = $pathDirectory . 'avatar' . $extension;
+//                if (file_put_contents($fullPath, file_get_contents($url))) {
+//                    @chmod($fullPath, 0777);
+//                    Image::make($fullPath)->encode('jpg', 80)->save($pathDirectory . 'avatar.jpg');
+//                    return true;
+//                }
+//            }
+//        }
+//    }
 
     public function getModelActive()
     {
