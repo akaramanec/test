@@ -3,6 +3,7 @@
 namespace App\Bot;
 
 use App\Models\Bot\Customer;
+use App\Models\Logger;
 use App\Services\Tabster\TabsterService;
 
 class TmAuth extends TmCommon
@@ -20,6 +21,11 @@ class TmAuth extends TmCommon
     {
         $this->init->session->saveCommonMessageId($this->init->messageId);
         if ($this->validate('phone') && $customerData = TabsterService::getWorker($this->init->data->value)) {
+            if (!is_array($customerData) || !isset($customerData['role'])) {
+                $this->phone($this->text('serverPhoneError'));
+                Logger::commit(['serverPhoneError' => $customerData], __METHOD__);
+                exit(__METHOD__.' '.__LINE__);
+            }
             $this->init->customer->phone = $customerData['phone'] ?? $this->init->data->value;
             $this->init->customer->status = Customer::STATUS_ACTIVE;
             $this->init->customer->role = $customerData['role'];
