@@ -4,7 +4,7 @@ namespace App\Bot;
 
 use App\Models\Bot\Customer;
 use Illuminate\Support\Facades\Hash;
-use Intervention\Image\Laravel\Facades\Image;
+use Intervention\Image\Facades\Image;
 
 class TmCustomer
 {
