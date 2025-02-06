@@ -24,7 +24,7 @@ class TabsterApi
         }
 //        $this->url = config('tabster.url');
         $this->url = 'https://major-sloth-present.ngrok-free.app';
-        $this->token = config('tabster.token_api');
+        $this->token = config('app.token_api');
     }
 
     private function curl($options = [])
