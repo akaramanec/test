@@ -20,9 +20,12 @@ class TmAuth extends TmCommon
     {
         $this->init->session->saveCommonMessageId($this->init->messageId);
         if ($this->validate('phone') && $customerData = TabsterService::getWorker($this->init->data->value)) {
-            $this->init->customer->phone = $this->init->data->value;
+            $this->init->customer->phone = $customerData['phone'] ?? $this->init->data->value;
             $this->init->customer->status = Customer::STATUS_ACTIVE;
             $this->init->customer->role = $customerData['role'];
+            if (isset($customerData['name'])) {
+                $this->init->customer->name = $customerData['name'];
+            }
             $this->init->customer->save();
             $this->deleteCommand();
             $this->delCommon();

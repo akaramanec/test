@@ -7,6 +7,20 @@ use App\Models\Project\Notification;
 
 class TabsterService
 {
+    public static function getWorker($phone)
+    {
+
+        $tabsterApi = new TabsterApi();
+        $requestData = [
+            'event_type' => 'PICK_UP_WORKER ',
+            'date' => now()->toIso8601String(),
+            'payload' => [
+                'phone' => $phone,
+            ]
+        ];
+        return $tabsterApi->post('/telegram/events', $requestData);
+    }
+
     public static function assignWaiter(Notification $notification)
     {
         $tabsterApi = new TabsterApi();
