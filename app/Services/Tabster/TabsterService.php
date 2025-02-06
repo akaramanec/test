@@ -12,7 +12,7 @@ class TabsterService
 
         $tabsterApi = new TabsterApi();
         $requestData = [
-            'event_type' => 'PICK_UP_WORKER ',
+            'event_type' => 'PICK_UP_WORKER',
             'date' => now()->toIso8601String(),
             'payload' => [
                 'phone' => $phone,
