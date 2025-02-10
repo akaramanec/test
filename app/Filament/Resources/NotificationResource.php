@@ -35,6 +35,10 @@ class NotificationResource extends Resource
                     ->label('ID')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('key')
                     ->label('Key')
                     ->searchable()
