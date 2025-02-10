@@ -29,7 +29,8 @@ RUN apt-get update \
       git \
       nginx \
       supervisor \
-      cron
+      cron \
+      logrotate
 
 RUN mkdir -p /run/php && chown -R www-data:www-data /run/php \
   && sed -i 's|^pid = .*$|pid = /run/php/php8.2-fpm.pid|' /etc/php/8.2/fpm/php-fpm.conf \
@@ -95,6 +96,14 @@ command=php /var/www/html/artisan queue:work --tries=3 --timeout=90
 autostart=true
 autorestart=true
 numprocs=1
+redirect_stderr=true
+stdout_logfile=/dev/stdout
+stderr_logfile=/dev/stderr
+
+[program:cron]
+command=cron -f
+autostart=true
+autorestart=true
 redirect_stderr=true
 stdout_logfile=/dev/stdout
 stderr_logfile=/dev/stderr
