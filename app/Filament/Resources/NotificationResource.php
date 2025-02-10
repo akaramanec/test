@@ -23,7 +23,17 @@ class NotificationResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('status')
+                    ->label('Status')
+                    ->required(),
+                Forms\Components\TextInput::make('action')
+                    ->label('Action')
+                    ->required(),
+                Forms\Components\TextInput::make('key')
+                    ->label('Key')
+                    ->required(),
+                Forms\Components\ViewField::make('data')
+                    ->view('components.formatted-data-column'),
             ]);
     }
 
@@ -37,6 +47,10 @@ class NotificationResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('action')
+                    ->label('Action')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('key')
