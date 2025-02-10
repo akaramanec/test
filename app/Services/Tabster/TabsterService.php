@@ -26,7 +26,7 @@ class TabsterService
         $tabsterApi = new TabsterApi();
         $requestData = [
             'event_id' => $notification->uuid,
-            'event_type' => 'PICK_UP_RESERVATION ',
+            'event_type' => 'PICK_UP_RESERVATION',
             'date' => $notification->updated_at->toIso8601String(),
             'payload' => [
                 'waiter_id' => $notification->data['assigned_waiter_id'],

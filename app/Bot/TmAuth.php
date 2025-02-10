@@ -20,7 +20,7 @@ class TmAuth extends TmCommon
     public function phoneSave()
     {
         $this->init->session->saveCommonMessageId($this->init->messageId);
-        if ($this->validate('phone') && $customerData = TabsterService::getWorker($this->init->data->value)) {
+        if ($this->validate('phone') && $customerData = TabsterService::getWorker(getFullPhoneFormat($this->init->data->value))) {
             if (!is_array($customerData) || !isset($customerData['role'])) {
                 $this->phone($this->text('serverPhoneError'));
                 Logger::commit(['serverPhoneError' => $customerData], __METHOD__);
@@ -29,6 +29,7 @@ class TmAuth extends TmCommon
             $this->init->customer->phone = $customerData['phone'] ?? $this->init->data->value;
             $this->init->customer->status = Customer::STATUS_ACTIVE;
             $this->init->customer->role = $customerData['role'];
+            $this->init->customer->external_id = $customerData['id'];
             if (isset($customerData['name'])) {
                 $this->init->customer->name = $customerData['name'];
             }
