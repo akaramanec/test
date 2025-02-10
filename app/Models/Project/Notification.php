@@ -13,6 +13,7 @@ class Notification extends Model
     const ACTION_IN_ESTABLISHMENT = 'inEstablishment';
     const STATUS_NEW = 'new';
     const STATUS_PROCESSING = 'processing';
+    const STATUS_ASSIGNED = 'assigned';
 
     protected $table = 'project_notifications';
 

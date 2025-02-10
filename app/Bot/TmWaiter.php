@@ -40,6 +40,7 @@ class TmWaiter extends TmCommon
             $this->unknown();
         }
         $notification->addData(['assigned_by' => Customer::ROLE_ADMIN, 'assigned_waiter_id' => $this->init->customer->external_id]);
+        $notification->update(['status' => Notification::STATUS_ASSIGNED]);
         InEstablishmentService::deleteMessages($notification);
         SendWaiterAssignTableJob::dispatch($notification);
     }
