@@ -31,6 +31,9 @@ class CustomerResource extends Resource
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->maxLength(255),
+                Forms\Components\TextInput::make('role')
+                    ->password()
+                    ->maxLength(50),
                 Forms\Components\TextInput::make('phone')
                     ->tel()
                     ->maxLength(30),
@@ -44,6 +47,8 @@ class CustomerResource extends Resource
                 Tables\Columns\TextColumn::make('platform_id')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status'),
+                Tables\Columns\TextColumn::make('role')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
