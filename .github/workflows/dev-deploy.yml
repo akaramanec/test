@@ -58,7 +58,7 @@ jobs:
           aws_access_key: AKIAQFC26ZM5USHO5SOW
           aws_secret_key: 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
           application_name: "telegram-bot-app"
-          environment_name: "dev-telegram-bot-env-spot"
+          environment_name: "telegram-bot-dev"
           region: us-east-1
           deployment_package: deploy.zip
           version_label: '${{ github.event.head_commit.timestamp }} - ${{ steps.sha_vars.outputs.sha_short }}'
