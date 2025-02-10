@@ -29,13 +29,13 @@ class VisitorRequest extends FormRequest
             'table.name' => ['required', 'string'],
 
             // dishes data
-            'dish_list' => ['required', 'array'],
-            'dish_list.name' => ['required', 'string'],
-            'dish_list.dishes' => ['required', 'array'],
-            'dish_list.dishes.*.id' => ['required', 'string'],
-            'dish_list.dishes.*.name' => ['required', 'string'],
-            'dish_list.dishes.*.price' => ['required', 'numeric'],
-            'dish_list.dishes.*.count' => ['required', 'integer'],
+            'dish_list' => ['nullable', 'array'],
+            'dish_list.name' => ['required_with:dish_list', 'string'],
+            'dish_list.dishes' => ['required_with:dish_list', 'array'],
+            'dish_list.dishes.*.id' => ['required_with:dish_list', 'string'],
+            'dish_list.dishes.*.name' => ['required_with:dish_list', 'string'],
+            'dish_list.dishes.*.price' => ['required_with:dish_list', 'numeric'],
+            'dish_list.dishes.*.count' => ['required_with:dish_list', 'integer'],
 
             // workers data
             'workers' => ['required', 'array'],
