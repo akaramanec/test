@@ -22,7 +22,6 @@ class InEstablishmentJob implements ShouldQueue
     public function __construct(Notification $notification, $fake = null)
     {
         $this->notification = $notification;
-        $this->fake = $fake;
     }
 
     public function handle()

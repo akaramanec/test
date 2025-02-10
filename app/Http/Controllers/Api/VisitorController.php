@@ -3,12 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\EvaluationRequest;
-use App\Http\Requests\InEstablishmentRequest;
 use App\Http\Requests\VisitorRequest;
 use App\Jobs\AdminNotifyJob;
 use App\Jobs\InEstablishmentJob;
-use App\Jobs\VisitorJob;
 use App\Models\Project\Notification;
 use Illuminate\Http\Response;
 
@@ -27,7 +24,7 @@ class VisitorController extends Controller
                 'status' => 'new',
                 'data' => $request->all()
             ]);
-            InEstablishmentJob::dispatch($this->notification, config('app.url') === 'https://base-bot.boto.kyiv.ua');
+            InEstablishmentJob::dispatch($this->notification);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage(), 'trace' => $e->getTrace()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
