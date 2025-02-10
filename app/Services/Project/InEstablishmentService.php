@@ -29,10 +29,12 @@ class InEstablishmentService
 
     public static function deleteMessages(Notification $notification)
     {
-        foreach ($notification->message_ids as $workerId => $messageId) {
-            $worker = Customer::find($workerId);
-            $bot = $worker->getBot();
-            $bot->deleteMessageByMessageId($messageId);
+        if ($notification->message_ids) {
+            foreach ($notification->message_ids as $workerId => $messageId) {
+                $worker = Customer::find($workerId);
+                $bot = $worker->getBot();
+                $bot->deleteMessageByMessageId($messageId);
+            }
         }
         $notification->update(['message_ids' => []]);
         $notification->refresh();
