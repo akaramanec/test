@@ -41,7 +41,7 @@ class TabsterService
     public static function getPlaceholdersFromNotification(Notification $notification)
     {
         $dishes = '';
-        if (!isset($notification->data['dish_list'])) {
+        if (isset($notification->data['dish_list'])) {
             foreach ($notification->data['dish_list']['dishes'] as $key => $dish) {
                 $dishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
             }
