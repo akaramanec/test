@@ -76,7 +76,7 @@ class TabsterService
 
         return [
             '{visitor_name}' => $data['user']['name'],
-            '{visitor_phone}' => $data['user']['phone'],
+            '{visitor_phone}' => $data['user']['phone'] ?? Text::getPrepared('noPhone'),
             '{pay_type}' => $data['pay_type'] ?? '',
             '{table}' => $data['table']['name'],
             '{dishes}' => $dishes,
