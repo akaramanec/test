@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Bot\BotController;
 use App\Http\Controllers\Bot\HomeController;
+use App\Http\Controllers\CommandController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,3 +19,4 @@ use Illuminate\Support\Facades\Route;
 Route::get('/bot/make', [BotController::class, 'make'])->name('bot.make');
 Route::get('/bot/info', [BotController::class, 'info'])->name('bot.info');
 Route::get('/test', [HomeController::class, 'test'])->name('bot.test');
+Route::get('/run-command', [CommandController::class, 'run']);
