@@ -96,8 +96,8 @@ autostart=true
 autorestart=true
 numprocs=1
 redirect_stderr=true
-stdout_logfile=/var/www/html/storage/logs/laravel-queue.log
-stderr_logfile=/var/www/html/storage/logs/laravel-queue.err
+stdout_logfile=/dev/stdout
+stderr_logfile=/dev/stderr
 EOF
 
 RUN echo "* * * * * cd /var/www/html && /usr/bin/php artisan schedule:run >> /dev/null 2>&1" >> /etc/crontab
