@@ -20,7 +20,7 @@ class CommandController extends Controller
             Artisan::call($command);
             $output = Artisan::output();
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTrace()], 500);
         }
 
         return response()->json(['output' => $output]);
