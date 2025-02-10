@@ -41,8 +41,10 @@ class TabsterService
     public static function getPlaceholdersFromNotification(Notification $notification)
     {
         $dishes = '';
-        foreach ($notification->data['dish_list']['dishes'] as $key => $dish) {
-            $dishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
+        if (!isset($notification->data['dish_list'])) {
+            foreach ($notification->data['dish_list']['dishes'] as $key => $dish) {
+                $dishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
+            }
         }
         if (!$dishes) {
             $dishes = Text::getPrepared('noPreOrderDishes');
