@@ -37,6 +37,8 @@ class CustomerResource extends Resource
                 Forms\Components\TextInput::make('phone')
                     ->tel()
                     ->maxLength(30),
+                Forms\Components\TextInput::make('external_id')
+                    ->required(),
             ]);
     }
 
@@ -44,6 +46,8 @@ class CustomerResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('external_id')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('platform_id')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status'),
