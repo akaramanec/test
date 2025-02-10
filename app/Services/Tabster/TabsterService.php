@@ -41,8 +41,8 @@ class TabsterService
     public static function getPlaceholdersFromNotification(Notification $notification)
     {
         $dishes = '';
-        if (isset($notification->data['dish_list'])) {
-            foreach ($notification->data['dish_list']['dishes'] as $key => $dish) {
+        if (isset($notification->data['dishes'])) {
+            foreach ($notification->data['dishes'] as $key => $dish) {
                 $dishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
             }
         }
@@ -61,16 +61,14 @@ class TabsterService
         $dishes = '';
         $addDishes = '';
 
-        if (isset($notification->data['dish_list'])) {
-            if (isset($notification->data['dish_list']['dishes'])) {
-                foreach ($notification->data['dish_list']['dishes'] as $key => $dish) {
-                    $dishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
-                }
+        if (isset($notification->data['dishes'])) {
+            foreach ($notification->data['dish_list']['dishes'] as $key => $dish) {
+                $dishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
             }
-            if (isset($notification->data['dish_list']['add_dishes'])) {
-                foreach ($notification->data['dish_list']['add_dishes'] as $key => $dish) {
-                    $addDishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
-                }
+        }
+        if (isset($notification->data['add_dishes'])) {
+            foreach ($notification->data['add_dishes'] as $key => $dish) {
+                $addDishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
             }
         }
 
