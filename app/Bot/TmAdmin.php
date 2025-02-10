@@ -49,6 +49,11 @@ class TmAdmin extends TmCommon
             $this->unknown();
         }
 
+        if ($notification->status == Notification::STATUS_ASSIGNED) {
+            $this->sendMessage(Text::getPrepared('reserveAlreadyAssigned'));
+            exit(__METHOD__);
+        }
+
         $placeholders = TabsterService::getPlaceholdersFromNotification($notification);
         $waiterBot = $waiter->getBot();
         $waiterBot->sendMessage(Text::getPrepared('adminAssigned', $placeholders));

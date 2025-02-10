@@ -39,6 +39,12 @@ class TmWaiter extends TmCommon
         if (!isset($this->init->data->nid) || !($notification = Notification::whereId($this->init->data->nid)->first())) {
             $this->unknown();
         }
+
+        if ($notification->status == Notification::STATUS_ASSIGNED) {
+            $this->sendMessage(Text::getPrepared('reserveAlreadyAssigned'));
+            exit(__METHOD__);
+        }
+
         $notification->addData(['assigned_by' => Customer::ROLE_ADMIN, 'assigned_waiter_id' => $this->init->customer->external_id]);
         $notification->update(['status' => Notification::STATUS_ASSIGNED]);
         InEstablishmentService::deleteMessages($notification);
