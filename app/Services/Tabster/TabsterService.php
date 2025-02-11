@@ -69,6 +69,7 @@ class TabsterService
             '{zone}' => $data['table']['zone'],
             '{dishes}' => $dishes ?? Text::getPrepared('noPreOrderDishes'),
             '{add_dishes}' => $addDishes,
+            '{evaluate}' => $data['evaluate'] ?? '',
         ];
     }
 }
