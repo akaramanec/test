@@ -19,10 +19,11 @@ class TmAuth extends TmCommon
 
     public function phoneSave()
     {
-        $this->init->session->saveCommonMessageId($this->init->messageId);
+        $this->deleteMessage();
         if ($this->validate('phone') && $customerData = TabsterService::getWorker(getFullPhoneFormat($this->init->data->value))) {
             if (!is_array($customerData) || !isset($customerData['role'])) {
-                $this->phone($this->text('serverPhoneError'));
+                $text = $customerData['messages'] ?? $this->text('serverPhoneError');
+                $this->phone($text);
                 Logger::commit(['serverPhoneError' => $customerData], __METHOD__);
                 exit(__METHOD__.' '.__LINE__);
             }
@@ -46,9 +47,9 @@ class TmAuth extends TmCommon
     public function unsubscribed()
     {
         if (isset($this->init->customer)) {
-            $this->init->customer->status = Customer::STATUS_UNSUBSCRIBED;
-
-            return $this->init->customer->save();
+//            $this->init->customer->status = Customer::STATUS_UNSUBSCRIBED;
+//            return $this->init->customer->save();
+            $this->init->customer->delete();
         }
 
         return true;

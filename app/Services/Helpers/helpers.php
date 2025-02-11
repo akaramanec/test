@@ -306,7 +306,7 @@ function getConstByType($class, $type)
 
 function getFullPhoneFormat(?string $phone, string $phoneCode = "380", int $phoneNeedLen = 12): ?string
 {
-    if (!$phone || (strlen($phone) > $phoneNeedLen)) {
+    if (!$phone) {
         return null;
     }
     if (preg_match("/^\+[0-9]{" . $phoneNeedLen . "}$/", $phone)) {

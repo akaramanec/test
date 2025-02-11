@@ -28,14 +28,14 @@ class CheckInEstablishmentAssignConsole extends Command
     public function handle()
     {
         $this->info('CheckInEstablishmentAssignConsole');
-        $notifications = Notification::where('action', 'inEstablishment')->where('status', 'new');
+        $notifications = Notification::where('action', 'inEstablishment')->where('status',  Notification::STATUS_NEW);
         if (!$notifications->exists()) {
             $this->info('No new notifications');
             return;
         }
 
         $notificationIds = $notifications->pluck('id');
-        Notification::whereIn('id', $notificationIds)->update(['status' => 'processing']);
+//        Notification::whereIn('id', $notificationIds)->update(['status' => Notification::STATUS_PROCESSING]);
 
         /** @var Notification $notification */
         foreach (Notification::whereIn('id', $notificationIds)->get() as $notification) {
