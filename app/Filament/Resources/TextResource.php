@@ -26,6 +26,7 @@ class TextResource extends Resource
                     ->maxLength(50),
                 Forms\Components\Textarea::make('text')
                     ->required()
+                    ->rows(10)
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('placeholder'),
             ]);

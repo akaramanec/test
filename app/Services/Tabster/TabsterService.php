@@ -40,18 +40,7 @@ class TabsterService
 
     public static function getPlaceholdersFromNotification(Notification $notification)
     {
-        $dishes = '';
-        if (isset($notification->data['dishes'])) {
-            foreach ($notification->data['dishes'] as $key => $dish) {
-                $dishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
-            }
-        }
-        if (!$dishes) {
-            $dishes = Text::getPrepared('noPreOrderDishes');
-        }
-
         $data = self::getPlaceholdersFromData($notification->data);
-        $data['{dishes}'] = $dishes;
         $data['{come_time}'] = $notification->data['come_time'];
         return $data;
     }
@@ -62,7 +51,7 @@ class TabsterService
         $addDishes = '';
 
         if (isset($notification->data['dishes'])) {
-            foreach ($notification->data['dish_list']['dishes'] as $key => $dish) {
+            foreach ($notification->data['dishes']as $key => $dish) {
                 $dishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
             }
         }
@@ -74,10 +63,11 @@ class TabsterService
 
         return [
             '{visitor_name}' => $data['user']['name'],
-            '{visitor_phone}' => $data['user']['phone'] ?? Text::getPrepared('noPhone'),
+            '{visitor_phone}' => $data['user']['phone'] ?? '',
             '{pay_type}' => $data['pay_type'] ?? '',
             '{table}' => $data['table']['name'],
-            '{dishes}' => $dishes,
+            '{zone}' => $data['table']['zone'],
+            '{dishes}' => $dishes ?? Text::getPrepared('noPreOrderDishes'),
             '{add_dishes}' => $addDishes,
         ];
     }

@@ -56,7 +56,8 @@ class LoggerResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\ViewField::make('data')->view('components.formatted-data-column'),
+                Forms\Components\ViewField::make('data')
+                    ->view('components.formatted-data-column'),
                 Forms\Components\TextInput::make('slug')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('platform_id')
