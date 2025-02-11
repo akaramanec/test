@@ -36,8 +36,7 @@ class NotificationResource extends Resource
                     ->label('Key')
                     ->readOnly(),
                 Forms\Components\TextInput::make('message_ids')
-                    ->label('Messages IDs')
-                    ->readOnly(),
+                    ->view('components.formatted-data-column'),
                 Forms\Components\ViewField::make('data')
                     ->view('components.formatted-data-column'),
             ]);
