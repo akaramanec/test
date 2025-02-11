@@ -41,7 +41,7 @@ class TabsterService
     public static function getPlaceholdersFromNotification(Notification $notification)
     {
         $data = self::getPlaceholdersFromData($notification->data);
-        $data['{come_time}'] = $notification->data['come_time'];
+        $data['{time}'] = $notification->data['time'];
         return $data;
     }
 
