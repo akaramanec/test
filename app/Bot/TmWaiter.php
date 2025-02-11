@@ -2,14 +2,12 @@
 
 namespace App\Bot;
 
-use App\Jobs\SendAssignReserveJob;
 use App\Jobs\SendWaiterAssignTableJob;
 use App\Models\Bot\Customer;
 use App\Models\Bot\Text;
 use App\Models\Logger;
 use App\Models\Project\Notification;
 use App\Services\Project\InEstablishmentService;
-use App\Services\Project\OrderService;
 use App\Services\Tabster\TabsterService;
 
 class TmWaiter extends TmCommon
@@ -29,9 +27,10 @@ class TmWaiter extends TmCommon
             ]
         ];
         $this->sendButton($this->prepareText($text), $buttons);
-        $this->saveResponseMessageIdToCommon();
-        Logger::commit([$this->init->customer->id, $this->response['result']['message_id']], __METHOD__);
-        InEstablishmentService::saveMessageId($notification, $this->init->customer->id, $this->response['result']['message_id']);
+        if (isset($this->response['result']['message_id'])) {
+            $this->saveResponseMessageIdToCommon();
+            InEstablishmentService::saveMessageId($notification, $this->init->customer->id, $this->response['result']['message_id']);
+        }
     }
 
     public function assignReserve()

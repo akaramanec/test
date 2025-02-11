@@ -32,7 +32,6 @@ class CustomerResource extends Resource
                     ->password()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('role')
-                    ->password()
                     ->maxLength(50),
                 Forms\Components\TextInput::make('phone')
                     ->tel()
