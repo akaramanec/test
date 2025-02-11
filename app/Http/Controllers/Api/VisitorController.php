@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\VisitorRequest;
 use App\Jobs\AdminNotifyJob;
 use App\Jobs\InEstablishmentJob;
-use App\Models\Logger;
 use App\Models\Project\Notification;
 use Illuminate\Http\Response;
 
