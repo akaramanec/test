@@ -25,7 +25,6 @@ class VisitorController extends Controller
                 'status' => 'new',
                 'data' => $request->all()
             ]);
-            Logger::commit(['visitor', $this->notification->id, $request->all()]);
             InEstablishmentJob::dispatch($this->notification);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage(), 'trace' => $e->getTrace()], Response::HTTP_INTERNAL_SERVER_ERROR);

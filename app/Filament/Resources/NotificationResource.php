@@ -23,15 +23,21 @@ class NotificationResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('id')
+                    ->label('Action')
+                    ->readOnly(),
                 Forms\Components\TextInput::make('status')
                     ->label('Status')
                     ->required(),
                 Forms\Components\TextInput::make('action')
                     ->label('Action')
-                    ->required(),
+                    ->readOnly(),
                 Forms\Components\TextInput::make('key')
                     ->label('Key')
-                    ->required(),
+                    ->readOnly(),
+                Forms\Components\TextInput::make('message_ids')
+                    ->label('Messages IDs')
+                    ->readOnly(),
                 Forms\Components\ViewField::make('data')
                     ->view('components.formatted-data-column'),
             ]);
