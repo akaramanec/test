@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\VisitorRequest;
 use App\Jobs\AdminNotifyJob;
 use App\Jobs\InEstablishmentJob;
+use App\Models\Logger;
 use App\Models\Project\Notification;
 use Illuminate\Http\Response;
 
@@ -24,6 +25,7 @@ class VisitorController extends Controller
                 'status' => 'new',
                 'data' => $request->all()
             ]);
+            Logger::commit(['visitor', $this->notification->id, $request->all()]);
             InEstablishmentJob::dispatch($this->notification);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage(), 'trace' => $e->getTrace()], Response::HTTP_INTERNAL_SERVER_ERROR);
