@@ -427,10 +427,10 @@ class TmBase
 
     public function send($method, $data = null)
     {
-        Logger::commit([$method, $data], __METHOD__);
+        $this->log([$method, $data], __METHOD__);
         $apiTm = new TmApi;
         $this->response = $apiTm->post($method, $data);
-        Logger::commit($this->response, __METHOD__);
+        $this->log($this->response, __METHOD__);
 
         return $this->response;
     }
@@ -453,5 +453,10 @@ class TmBase
             ]);
             sleep($daley);
         }
+    }
+
+    public function log($data, $slug)
+    {
+        Logger::commit($data, $slug, $this->init->platformId);
     }
 }

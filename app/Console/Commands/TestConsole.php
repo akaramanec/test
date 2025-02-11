@@ -27,5 +27,6 @@ class TestConsole extends Command
      */
     public function handle()
     {
+        dd(TabsterService::getWorker(getFullPhoneFormat('+380989165575')));
     }
 }
