@@ -34,7 +34,7 @@ jobs:
       - name: Login to ECR
         run: |
           aws ecr get-login-password --region us-east-1 \
-            | docker login --username AWS --password-stdin <your_aws_account_id>.dkr.ecr.us-east-1.amazonaws.com
+            | docker login --username AWS --password-stdin 010928180027.dkr.ecr.us-east-1.amazonaws.com
       - name: Push Docker image to ECR
         run: |
           docker tag telegram-bot-app:latest 010928180027.dkr.ecr.us-east-1.amazonaws.com/telegram-bot-repo:latest
