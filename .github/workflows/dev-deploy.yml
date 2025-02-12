@@ -71,6 +71,7 @@ jobs:
           environment_name: "telegram-bot-dev"
           region: us-east-1
           deployment_package: deploy.zip
-          version_label: '${{ github.event.head_commit.timestamp }} - ${{ steps.sha_vars.outputs.sha_short }}'
+          version_label: "${{ github.event.head_commit.timestamp }}-${{ steps.sha_vars.outputs.sha_short }}-${{ github.run_id }}"
           version_description: '${{ steps.msg_vars.outputs.message_short }}'
+          use_existing_version_if_available: true
           wait_for_deployment: false
