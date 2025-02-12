@@ -1,5 +1,5 @@
 <?php
 return [
-    'url' => env('TABSTER_URL', 'http://localhost:8000'),
-    'token' => env('TABSTER_TOKEN', '1111'),
+    'url' => env('TABSTER_URL', 'https://dev.app.server.tabster.com.ua'),
+    'token' => env('TOKEN_API'),
 ];

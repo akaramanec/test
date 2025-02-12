@@ -22,8 +22,8 @@ class TabsterApi
         if ($fakerLocal) {
             $this->faker = Factory::create($fakerLocal);
         }
-//        $this->url = config('tabster.url');
-        $this->url = 'https://major-sloth-present.ngrok-free.app';
+        $this->url = config('tabster.url');
+//        $this->url = 'https://major-sloth-present.ngrok-free.app';
         $this->token = config('app.token_api');
     }
 
