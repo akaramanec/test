@@ -31,12 +31,13 @@ RUN apt-get update \
       cron \
       logrotate
 
+# Налаштовуємо PHP-FPM
 RUN mkdir -p /run/php && chown -R www-data:www-data /run/php \
   && sed -i 's|^pid = .*$|pid = /run/php/php8.2-fpm.pid|' /etc/php/8.2/fpm/php-fpm.conf \
   && sed -i 's|^listen = .*$|listen = 127.0.0.1:9000|' /etc/php/8.2/fpm/pool.d/www.conf \
   && php-fpm8.2 -t
 
-
+# Встановлюємо Composer і Node
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
   && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
   && apt-get install -y nodejs
@@ -46,6 +47,7 @@ COPY . /var/www/html
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R ug+rwx /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Інсталяція Laravel-залежностей і збірка
 RUN composer install --no-dev --prefer-dist --no-progress --no-suggest \
   && npm install \
   && npm run build \
@@ -53,29 +55,14 @@ RUN composer install --no-dev --prefer-dist --no-progress --no-suggest \
   && php artisan storage:link || true \
   && php artisan vendor:publish --force --tag=livewire:assets
 
+# Усуваємо warning "could not build optimal types_hash..."
 RUN sed -i '/http {/a \    types_hash_max_size 2048;\n    types_hash_bucket_size 128;' /etc/nginx/nginx.conf
 
-RUN rm /etc/nginx/sites-enabled/default \
-    && echo "server {
-        listen 80;
-        root /var/www/html/public;
-        index index.php;
-
-        location /health {
-            return 200;
-        }
-
-        location / {
-            try_files \$uri \$uri/ /index.php?\$query_string;
-        }
-
-        location ~ \\.php\\$ {
-            include snippets/fastcgi-php.conf;
-            fastcgi_pass 127.0.0.1:9000;
-        }
-    }" > /etc/nginx/sites-available/laravel.conf \
+# Однією стрічкою створюємо конфіг nginx для Laravel
+RUN rm /etc/nginx/sites-enabled/default && echo "server { listen 80; root /var/www/html/public; index index.php; location /health { return 200; } location / { try_files \\$uri \\$uri/ /index.php?\\$query_string; } location ~ \\.php\\$ { include snippets/fastcgi-php.conf; fastcgi_pass 127.0.0.1:9000; } }" > /etc/nginx/sites-available/laravel.conf \
     && ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/laravel.conf
 
+# Supervisor-конфіг
 RUN cat <<EOF > /etc/supervisor/conf.d/supervisord.conf
 [supervisord]
 nodaemon=true
@@ -115,6 +102,7 @@ stdout_logfile=/var/log/supervisor/cron.log
 stderr_logfile=/var/log/supervisor/cron.err
 EOF
 
+# Записуємо крон для schedule:run
 RUN echo "* * * * * cd /var/www/html && /usr/bin/php artisan schedule:run >> /dev/null 2>&1" >> /etc/crontab
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
