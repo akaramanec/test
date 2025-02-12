@@ -1,3 +1,9 @@
-location /health {
-  return 200;
-}
+files:
+  "/etc/nginx/conf.d/00_health.conf":
+    mode: "000644"
+    owner: root
+    group: root
+    content: |
+      location /health {
+        return 200;
+      }
