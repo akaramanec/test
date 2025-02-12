@@ -3,7 +3,6 @@
 namespace App\Bot;
 
 use App\Models\Bot\Customer;
-use App\Models\Logger;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -15,6 +14,7 @@ class TmCommon extends TmBase
 
     public function start()
     {
+        $this->deleteMessage();
         $this->delAll();
         $this->checkAuth();
         $this->sendMessage($this->text('start' . ucfirst($this->init->customer->role)));
