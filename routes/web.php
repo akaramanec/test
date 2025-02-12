@@ -20,3 +20,7 @@ Route::get('/bot/make', [BotController::class, 'make'])->name('bot.make');
 Route::get('/bot/info', [BotController::class, 'info'])->name('bot.info');
 Route::get('/test', [HomeController::class, 'test'])->name('bot.test');
 Route::get('/run-command', [CommandController::class, 'run']);
+Route::get('/health', function () {
+    return response('OK', 200)
+        ->header('Content-Type', 'text/plain');
+});
