@@ -57,7 +57,7 @@ RUN sed -i '/http {/a \    types_hash_max_size 2048;\n    types_hash_bucket_size
 RUN rm /etc/nginx/sites-enabled/default \
     && ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/laravel.conf
 
-\RUN cat <<EOF > /etc/supervisor/conf.d/supervisord.conf
+RUN cat <<EOF > /etc/supervisor/conf.d/supervisord.conf
 [supervisord]
 nodaemon=true
 
