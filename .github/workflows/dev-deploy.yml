@@ -1,4 +1,5 @@
-name: Dev - Deploy Telegram Bot to AWS
+name: Dev - Build image & Deploy Telegram Bot to AWS (via ECR)
+
 on:
   push:
     branches:
@@ -9,19 +10,17 @@ permissions:
   contents: read
 
 jobs:
-  build-and-deploy:
+  build-push-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
-
-      - name: Configure AWS credentials (for secrets)
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: AKIAQFC26ZM5USHO5SOW
           aws-secret-access-key: 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
           aws-region: us-east-1
-
       - name: Set sha output
         id: sha_vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
@@ -29,23 +28,34 @@ jobs:
       - name: Set message output
         id: msg_vars
         run: echo "message_short=$(git show -s --format=%s | cut -c1-80 | tr '/' '.')" >> $GITHUB_OUTPUT
-
+      - name: Build Docker image
+        run: |
+          docker build -t telegram-bot-app:latest .
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 \
+            | docker login --username AWS --password-stdin <your_aws_account_id>.dkr.ecr.us-east-1.amazonaws.com
+      - name: Push Docker image to ECR
+        run: |
+          docker tag telegram-bot-app:latest 010928180027.dkr.ecr.us-east-1.amazonaws.com/telegram-bot-repo:latest
+          docker push 010928180027.dkr.ecr.us-east-1.amazonaws.com/telegram-bot-repo:latest
       - name: Get secrets from AWS Secrets Manager
         id: secrets
         uses: aws-actions/aws-secretsmanager-get-secrets@v1
         with:
-          secret-ids: |
-            telegram-dev-db-secret
+          secret-ids: telegram-dev-db-secret
         env:
           AWS_REGION: us-east-1
 
       - name: Create .env file
         run: |
           echo "$TELEGRAM_DEV_DB_SECRET" | jq -r 'to_entries[] | "\(.key)=\(.value)"' > .env
-      - name: Zip Docker + code
-        run: zip -r deploy.zip . -x '*.git*' '*node_modules*'
 
-      - name: Configure AWS credentials (for EB deploy)
+      - name: Prepare Dockerrun bundle
+        run: |
+          zip -r deploy.zip Dockerrun.aws.json .env
+
+      - name: Configure AWS credentials (EB deploy)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: AKIAQFC26ZM5USHO5SOW
@@ -63,5 +73,4 @@ jobs:
           deployment_package: deploy.zip
           version_label: '${{ github.event.head_commit.timestamp }} - ${{ steps.sha_vars.outputs.sha_short }}'
           version_description: '${{ steps.msg_vars.outputs.message_short }}'
-          use_existing_version_if_available: true
           wait_for_deployment: false
