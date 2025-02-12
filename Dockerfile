@@ -36,6 +36,7 @@ RUN mkdir -p /run/php && chown -R www-data:www-data /run/php \
   && sed -i 's|^listen = .*$|listen = 127.0.0.1:9000|' /etc/php/8.2/fpm/pool.d/www.conf \
   && php-fpm8.2 -t
 
+
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
   && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
   && apt-get install -y nodejs
@@ -55,27 +56,25 @@ RUN composer install --no-dev --prefer-dist --no-progress --no-suggest \
 RUN sed -i '/http {/a \    types_hash_max_size 2048;\n    types_hash_bucket_size 128;' /etc/nginx/nginx.conf
 
 RUN rm /etc/nginx/sites-enabled/default \
- && cat << 'EOF' > /etc/nginx/sites-available/laravel.conf
-server {
-    listen 80;
-    root /var/www/html/public;
-    index index.php;
+    && echo "server {
+        listen 80;
+        root /var/www/html/public;
+        index index.php;
 
-    location /health {
-        return 200;
-    }
+        location /health {
+            return 200;
+        }
 
-    location / {
-        try_files \$uri \$uri/ /index.php?\$query_string;
-    }
+        location / {
+            try_files \$uri \$uri/ /index.php?\$query_string;
+        }
 
-    location ~ \\.php\$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass 127.0.0.1:9000;
-    }
-}
-EOF
- && ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/laravel.conf
+        location ~ \\.php\\$ {
+            include snippets/fastcgi-php.conf;
+            fastcgi_pass 127.0.0.1:9000;
+        }
+    }" > /etc/nginx/sites-available/laravel.conf \
+    && ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/laravel.conf
 
 RUN cat <<EOF > /etc/supervisor/conf.d/supervisord.conf
 [supervisord]
