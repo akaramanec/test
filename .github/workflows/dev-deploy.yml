@@ -15,12 +15,14 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: AKIAQFC26ZM5USHO5SOW
           aws-secret-access-key: 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
           aws-region: us-east-1
+
       - name: Set sha output
         id: sha_vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
@@ -28,17 +30,7 @@ jobs:
       - name: Set message output
         id: msg_vars
         run: echo "message_short=$(git show -s --format=%s | cut -c1-80 | tr '/' '.')" >> $GITHUB_OUTPUT
-      - name: Build Docker image
-        run: |
-          docker build -t telegram-bot-app:latest .
-      - name: Login to ECR
-        run: |
-          aws ecr get-login-password --region us-east-1 \
-            | docker login --username AWS --password-stdin 010928180027.dkr.ecr.us-east-1.amazonaws.com
-      - name: Push Docker image to ECR
-        run: |
-          docker tag telegram-bot-app:latest 010928180027.dkr.ecr.us-east-1.amazonaws.com/telegram-bot-repo:latest
-          docker push 010928180027.dkr.ecr.us-east-1.amazonaws.com/telegram-bot-repo:latest
+
       - name: Get secrets from AWS Secrets Manager
         id: secrets
         uses: aws-actions/aws-secretsmanager-get-secrets@v1
@@ -51,16 +43,23 @@ jobs:
         run: |
           echo "$TELEGRAM_DEV_DB_SECRET" | jq -r 'to_entries[] | "\(.key)=\(.value)"' > .env
 
+      - name: Build Docker image
+        run: |
+          docker build -t telegram-bot-app:latest .
+
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 \
+            | docker login --username AWS --password-stdin 010928180027.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: Push Docker image to ECR
+        run: |
+          docker tag telegram-bot-app:latest 010928180027.dkr.ecr.us-east-1.amazonaws.com/telegram-bot-repo:latest
+          docker push 010928180027.dkr.ecr.us-east-1.amazonaws.com/telegram-bot-repo:latest
+
       - name: Prepare Dockerrun bundle
         run: |
           zip -r deploy.zip Dockerrun.aws.json .env
-
-      - name: Configure AWS credentials (EB deploy)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: AKIAQFC26ZM5USHO5SOW
-          aws-secret-access-key: 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
-          aws-region: us-east-1
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v22
