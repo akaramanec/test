@@ -52,7 +52,7 @@ RUN composer install --no-dev --prefer-dist --no-progress --no-suggest \
   && php artisan storage:link || true \
   && php artisan vendor:publish --force --tag=livewire:assets
 
-RUN sed -i '/http {/a \    types_hash_max_size 2048;\n    types_hash_bucket_size 128;' /etc/nginx/nginx.conf
+COPY nginx/laravel.conf /etc/nginx/sites-available/laravel.conf
 
 RUN rm /etc/nginx/sites-enabled/default \
     && ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/laravel.conf
