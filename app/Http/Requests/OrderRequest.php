@@ -15,7 +15,7 @@ class OrderRequest extends FormRequest
             'user.name' => ['required', 'string'],
 
             // order data
-            'order_id' => ['required', 'string'],
+            'order_id' => ['nullable', 'string'],
 
             // table data
             'table' => ['required', 'array'],

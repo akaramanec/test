@@ -21,7 +21,7 @@ class VisitorRequest extends FormRequest
             'evaluate' => [request()->route()->getName() == 'visitor.evaluate' ? 'required' : 'nullable', 'numeric'],
 
             // order data
-            'order_id' => ['required', 'string'],
+            'order_id' => ['nullable', 'string'],
 
             // table data
             'table' => ['required', 'array'],

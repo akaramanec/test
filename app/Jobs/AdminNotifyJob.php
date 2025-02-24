@@ -26,7 +26,7 @@ class AdminNotifyJob implements ShouldQueue
     public function handle()
     {
         $admins = Customer::whereIn('external_id', array_column($this->data['workers']['admins'], 'id'))->get();
-        /** @var Customer $waiter */
+        /** @var Customer $admin */
         if ($admins) {
             foreach ($admins as $admin) {
                 $bot = $admin->getBot();
