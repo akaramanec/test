@@ -26,6 +26,10 @@ class OrderJob implements ShouldQueue
 
     public function handle()
     {
+        if (isset($this->data['workers'])) {
+            Customer::updateWorkers($this->data['workers']);
+        }
+
         $waiter = Customer::where('external_id', $this->data['waiter_id'])->first();
         /** @var Customer $waiter */
         if ($waiter) {

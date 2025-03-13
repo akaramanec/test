@@ -131,4 +131,27 @@ class Customer extends Authenticatable implements JWTSubject
         $bot->init->currentCustomer($this);
         return $bot;
     }
+
+    public static function updateWorkers(array $workers)
+    {
+        if ($workers['admins']) {
+            foreach ($workers['admins'] as $admin) {
+                $customer = self::where('external_id', $admin['id'])->first();
+                if ($customer && !$customer->role != Customer::ROLE_ADMIN) {
+                    $customer->role = Customer::ROLE_ADMIN;
+                    $customer->save();
+                }
+            }
+        }
+
+        if ($workers['waiters']) {
+            foreach ($workers['waiters'] as $waiter) {
+                $customer = self::where('external_id', $waiter['id'])->first();
+                if ($customer && !$customer->role != Customer::ROLE_WAITER) {
+                    $customer->role = Customer::ROLE_WAITER;
+                    $customer->save();
+                }
+            }
+        }
+    }
 }

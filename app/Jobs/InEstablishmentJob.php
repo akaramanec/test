@@ -19,13 +19,17 @@ class InEstablishmentJob implements ShouldQueue
     protected Notification $notification;
     protected ?bool $fake;
 
-    public function __construct(Notification $notification,)
+    public function __construct(Notification $notification)
     {
         $this->notification = $notification;
     }
 
     public function handle()
     {
+        if (isset($this->notification->data['workers'])) {
+            Customer::updateWorkers($this->notification->data['workers']);
+        }
+
         InEstablishmentService::sendMessages($this->notification);
     }
 }
