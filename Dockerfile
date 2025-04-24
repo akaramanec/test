@@ -1,55 +1,55 @@
-FROM ubuntu:20.04
-ENV DEBIAN_FRONTEND=noninteractive
+FROM php:8.2-fpm
+
 ENV TZ=Europe/Kiev
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
+  && echo ${TZ} > /etc/timezone
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
+      git \
       curl \
+      unzip \
+      zip \
+      libzip-dev \
+      libpng-dev \
+      libjpeg-dev \
+      libfreetype-dev \
+      libonig-dev \
+      libicu-dev \
+      libpq-dev \
+      libxml2-dev \
+      libcurl4-openssl-dev \
+      supervisor \
+      cron \
+      nginx \
+      apt-transport-https \
       ca-certificates \
       gnupg2 \
       dirmngr \
       lsb-release \
-      apt-transport-https \
-  && curl -fsSL https://packages.sury.org/php/apt.gpg \
-       | gpg --dearmor -o /etc/apt/trusted.gpg.d/sury-php.gpg \
-  && echo "deb [signed-by=/etc/apt/trusted.gpg.d/sury-php.gpg] \
-      https://packages.sury.org/php/ $(lsb_release -sc) main" \
-       > /etc/apt/sources.list.d/sury-php.list \
-  && apt-get update \
-  && apt-get install -y \
-      php8.2-fpm \
-      php8.2-bcmath \
-      php8.2-ctype \
-      php8.2-fileinfo \
-      php8.2-mbstring \
-      php8.2-pdo \
-      php8.2-pgsql \
-      php8.2-mysql \
-      php8.2-tokenizer \
-      php8.2-xml \
-      php8.2-gd \
-      php8.2-exif \
-      php8.2-curl \
-      php8.2-zip \
-      php8.2-intl \
+  && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+  && apt-get install -y --no-install-recommends nodejs \
+  && docker-php-ext-configure gd --with-freetype --with-jpeg \
+  && docker-php-ext-install -j$(nproc) \
+      bcmath \
+      ctype \
+      fileinfo \
+      gd \
+      mbstring \
+      pdo \
+      pdo_mysql \
+      pdo_pgsql \
+      tokenizer \
+      xml \
+      zip \
+      intl \
+      exif \
       curl \
-      unzip \
-      git \
-      nginx \
-      supervisor \
-      cron \
-      logrotate \
   && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /run/php && chown -R www-data:www-data /run/php \
-  && sed -i 's|^pid = .*$|pid = /run/php/php8.2-fpm.pid|' /etc/php/8.2/fpm/php-fpm.conf \
-  && sed -i 's|^listen = .*$|listen = 127.0.0.1:9000|' /etc/php/8.2/fpm/pool.d/www.conf \
-  && php-fpm8.2 -t
-
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-  && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-  && apt-get install -y nodejs
-
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 WORKDIR /var/www/html
 COPY . /var/www/html
 RUN chown -R www-data:www-data /var/www/html \
@@ -58,12 +58,11 @@ RUN chown -R www-data:www-data /var/www/html \
 RUN composer install --no-dev --prefer-dist --no-progress --no-suggest \
   && npm install \
   && npm run build \
-  && php artisan key:generate || true \
-  && php artisan storage:link || true \
+  && php artisan key:generate --force \
+  && php artisan storage:link --force \
   && php artisan vendor:publish --force --tag=livewire:assets
 
 COPY nginx/laravel.conf /etc/nginx/sites-available/laravel.conf
-
 RUN rm /etc/nginx/sites-enabled/default \
   && ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/laravel.conf
 
@@ -106,12 +105,11 @@ stdout_logfile=/var/log/supervisor/cron.log
 stderr_logfile=/var/log/supervisor/cron.err
 EOF
 
-RUN echo "* * * * * cd /var/www/html && /usr/bin/php artisan schedule:run >> /dev/null 2>&1" \
-  >> /etc/crontab
+RUN echo "* * * * * cd /var/www/html && php artisan schedule:run >> /dev/null 2>&1" >> /etc/crontab
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
 EXPOSE 80
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
