@@ -24,13 +24,7 @@ RUN apt-get update \
       supervisor \
       cron \
       nginx \
-      apt-transport-https \
-      ca-certificates \
-      gnupg2 \
-      dirmngr \
-      lsb-release \
-  && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-  && apt-get install -y --no-install-recommends nodejs \
+      bison \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
   && docker-php-ext-install -j$(nproc) \
       bcmath \
@@ -49,8 +43,16 @@ RUN apt-get update \
       curl \
   && rm -rf /var/lib/apt/lists/*
 
+# Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends nodejs \
+  && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /var/www/html
+
 COPY . /var/www/html
 RUN chown -R www-data:www-data /var/www/html \
   && chmod -R ug+rwx /var/www/html/storage /var/www/html/bootstrap/cache
@@ -62,10 +64,12 @@ RUN composer install --no-dev --prefer-dist --no-progress --no-suggest \
   && php artisan storage:link --force \
   && php artisan vendor:publish --force --tag=livewire:assets
 
+# Nginx
 COPY nginx/laravel.conf /etc/nginx/sites-available/laravel.conf
 RUN rm /etc/nginx/sites-enabled/default \
   && ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/laravel.conf
 
+# Supervisor
 RUN cat <<EOF > /etc/supervisor/conf.d/supervisord.conf
 [supervisord]
 nodaemon=true
@@ -105,7 +109,8 @@ stdout_logfile=/var/log/supervisor/cron.log
 stderr_logfile=/var/log/supervisor/cron.err
 EOF
 
-RUN echo "* * * * * cd /var/www/html && php artisan schedule:run >> /dev/null 2>&1" >> /etc/crontab
+RUN echo "* * * * * cd /var/www/html && php artisan schedule:run >> /dev/null 2>&1" \
+  >> /etc/crontab
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
