@@ -3,11 +3,20 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Kiev
 
 RUN apt-get update \
-  && apt-get remove -y php8.1-common php8.1-fpm php8.1-cli php8.1-* || true \
-  && apt-get autoremove -y \
-  && apt-get install -y software-properties-common \
-  && add-apt-repository ppa:ondrej/php -y \
-  && apt-get update && apt-get install -y \
+  && apt-get install -y --no-install-recommends \
+      curl \
+      ca-certificates \
+      gnupg2 \
+      dirmngr \
+      lsb-release \
+      apt-transport-https \
+  && curl -fsSL https://packages.sury.org/php/apt.gpg \
+       | gpg --dearmor -o /etc/apt/trusted.gpg.d/sury-php.gpg \
+  && echo "deb [signed-by=/etc/apt/trusted.gpg.d/sury-php.gpg] \
+      https://packages.sury.org/php/ $(lsb_release -sc) main" \
+       > /etc/apt/sources.list.d/sury-php.list \
+  && apt-get update \
+  && apt-get install -y \
       php8.2-fpm \
       php8.2-bcmath \
       php8.2-ctype \
@@ -29,7 +38,8 @@ RUN apt-get update \
       nginx \
       supervisor \
       cron \
-      logrotate
+      logrotate \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /run/php && chown -R www-data:www-data /run/php \
   && sed -i 's|^pid = .*$|pid = /run/php/php8.2-fpm.pid|' /etc/php/8.2/fpm/php-fpm.conf \
@@ -43,7 +53,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 WORKDIR /var/www/html
 COPY . /var/www/html
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R ug+rwx /var/www/html/storage /var/www/html/bootstrap/cache
+  && chmod -R ug+rwx /var/www/html/storage /var/www/html/bootstrap/cache
 
 RUN composer install --no-dev --prefer-dist --no-progress --no-suggest \
   && npm install \
@@ -55,7 +65,7 @@ RUN composer install --no-dev --prefer-dist --no-progress --no-suggest \
 COPY nginx/laravel.conf /etc/nginx/sites-available/laravel.conf
 
 RUN rm /etc/nginx/sites-enabled/default \
-    && ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/laravel.conf
+  && ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/laravel.conf
 
 RUN cat <<EOF > /etc/supervisor/conf.d/supervisord.conf
 [supervisord]
@@ -96,7 +106,8 @@ stdout_logfile=/var/log/supervisor/cron.log
 stderr_logfile=/var/log/supervisor/cron.err
 EOF
 
-RUN echo "* * * * * cd /var/www/html && /usr/bin/php artisan schedule:run >> /dev/null 2>&1" >> /etc/crontab
+RUN echo "* * * * * cd /var/www/html && /usr/bin/php artisan schedule:run >> /dev/null 2>&1" \
+  >> /etc/crontab
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
