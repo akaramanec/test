@@ -46,43 +46,39 @@ RUN docker-php-source extract \
       curl \
   && docker-php-source delete
 
-# Composer
 RUN curl -sS https://getcomposer.org/installer \
-    | php -- --install-dir=/usr/local/bin --filename=composer
-
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+       | php -- --install-dir=/usr/local/bin --filename=composer \
+  && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
   && apt-get update \
   && apt-get install -y --no-install-recommends nodejs \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html
-
 COPY . /var/www/html
-RUN chown -R www-data:www-data /var/www/html \
-  && chmod -R ug+rwx /var/www/html/storage /var/www/html/bootstrap/cache
 
-RUN composer install --no-dev --prefer-dist --no-progress --no-suggest \
+RUN chown -R www-data:www-data /var/www/html \
+  && chmod -R ug+rwx /var/www/html/storage /var/www/html/bootstrap/cache \
+  && composer install --no-dev --prefer-dist --no-progress --no-suggest \
   && npm install \
   && npm run build \
   && php artisan key:generate --force \
   && php artisan storage:link --force \
   && php artisan vendor:publish --force --tag=livewire:assets
 
-# Nginx
+# 6) Nginx
 COPY nginx/laravel.conf /etc/nginx/sites-available/laravel.conf
 RUN rm /etc/nginx/sites-enabled/default \
   && ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/laravel.conf
 
-# Supervisor
 RUN cat <<EOF > /etc/supervisor/conf.d/supervisord.conf
 [supervisord]
 nodaemon=true
 
 [program:php-fpm]
-command=/usr/sbin/php-fpm8.2 -F
+; в офіційному php:8.2-fpm бінарник називається php-fpm і лежить у /usr/local/sbin
+command=/usr/local/sbin/php-fpm -F
 autostart=true
 autorestart=true
-redirect_stderr=false
 stdout_logfile=/var/log/supervisor/php-fpm.log
 stderr_logfile=/var/log/supervisor/php-fpm.err
 
@@ -90,7 +86,6 @@ stderr_logfile=/var/log/supervisor/php-fpm.err
 command=nginx -g 'daemon off;'
 autostart=true
 autorestart=true
-redirect_stderr=false
 stdout_logfile=/var/log/supervisor/nginx.log
 stderr_logfile=/var/log/supervisor/nginx.err
 
@@ -100,7 +95,6 @@ command=php /var/www/html/artisan queue:work --tries=3 --timeout=90 --verbose
 autostart=true
 autorestart=true
 numprocs=1
-redirect_stderr=false
 stdout_logfile=/var/log/supervisor/laravel-queue.log
 stderr_logfile=/var/log/supervisor/laravel-queue.err
 
@@ -108,16 +102,15 @@ stderr_logfile=/var/log/supervisor/laravel-queue.err
 command=cron -f
 autostart=true
 autorestart=true
-redirect_stderr=false
 stdout_logfile=/var/log/supervisor/cron.log
 stderr_logfile=/var/log/supervisor/cron.err
 EOF
 
-# Cron for Laravel scheduler
+# 8) Cron для scheduler
 RUN echo "* * * * * cd /var/www/html && php artisan schedule:run >> /dev/null 2>&1" \
   >> /etc/crontab
 
-# Entrypoint
+# 9) Entrypoint
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
