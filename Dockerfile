@@ -25,6 +25,10 @@ RUN apt-get update \
       cron \
       nginx \
       bison \
+      build-essential \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-source extract \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
   && docker-php-ext-install -j$(nproc) \
       bcmath \
@@ -41,10 +45,11 @@ RUN apt-get update \
       intl \
       exif \
       curl \
-  && rm -rf /var/lib/apt/lists/*
+  && docker-php-source delete
 
 # Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org/installer \
+    | php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
   && apt-get update \
@@ -109,9 +114,11 @@ stdout_logfile=/var/log/supervisor/cron.log
 stderr_logfile=/var/log/supervisor/cron.err
 EOF
 
+# Cron for Laravel scheduler
 RUN echo "* * * * * cd /var/www/html && php artisan schedule:run >> /dev/null 2>&1" \
   >> /etc/crontab
 
+# Entrypoint
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
