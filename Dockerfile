@@ -39,7 +39,6 @@ RUN docker-php-source extract \
       pdo \
       pdo_mysql \
       pdo_pgsql \
-      tokenizer \
       xml \
       zip \
       intl \
