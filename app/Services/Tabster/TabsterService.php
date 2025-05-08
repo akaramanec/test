@@ -50,16 +50,18 @@ class TabsterService
         $dishes = '';
         $addDishes = '';
 
-        if (isset($notification->data['dishes'])) {
-            foreach ($notification->data['dishes']as $key => $dish) {
-                $dishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
+        if (isset($data['dish_list']['dishes'])) {
+            foreach ($data['dish_list']['dishes'] as $key => $dish) {
+                $dishes .= ($key + 1) . '. ' . $dish['name'] . PHP_EOL;
             }
         }
-        if (isset($notification->data['add_dishes'])) {
-            foreach ($notification->data['add_dishes'] as $key => $dish) {
-                $addDishes .= $key + 1 . '. ' . $dish['name'] . PHP_EOL;
+        if (isset($data['dish_list']['add_dishes'])) {
+            foreach ($data['dish_list']['add_dishes'] as $key => $dish) {
+                $addDishes .= ($key + 1) . '. ' . $dish['name'] . PHP_EOL;
             }
         }
+
+        $time = isset($data['time']) ? date('H:i', strtotime($data['time'])) : now()->format('H:i');
 
         return [
             '{visitor_name}' => $data['user']['name'],
@@ -69,6 +71,7 @@ class TabsterService
             '{zone}' => $data['table']['zone'],
             '{dishes}' => $dishes ?? Text::getPrepared('noPreOrderDishes'),
             '{add_dishes}' => $addDishes,
+            '{time}' => $time,
             '{evaluate}' => $data['evaluate'] ?? '',
         ];
     }
