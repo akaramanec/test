@@ -40,7 +40,27 @@ class InEstablishmentService
         $notification->refresh();
     }
 
-        public static function deleteMessageForWaiter(Notification $notification, $bot)
+    public static function deleteMessagesExceptWaiter(Notification $notification, $waiterId)
+    {
+        $messageIds = $notification->message_ids;
+
+        if ($messageIds) {
+            foreach ($messageIds as $workerId => $messageId) {
+                if ($workerId != $waiterId) {
+                    $worker = Customer::find($workerId);
+                    $bot = $worker->getBot();
+                    $bot->deleteMessageByMessageId($messageId);
+
+                    unset($messageIds[$workerId]);
+                }
+            }
+
+            $notification->update(['message_ids' => $messageIds]);
+            $notification->refresh();
+        }
+    }
+
+    public static function deleteMessageForWaiter(Notification $notification, $bot)
     {
         foreach ($notification->message_ids as $workerId => $messageId) {
             if ($workerId == $bot->init->customer->id) {
