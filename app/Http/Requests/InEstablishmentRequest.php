@@ -29,10 +29,11 @@ class InEstablishmentRequest extends FormRequest
             // dishes data
             'dish_list' => ['required', 'array'],
             'dish_list.name' => ['required', 'string'],
-            'dish_list.dishes.*.id' => ['required', 'string'],
-            'dish_list.dishes.*.name' => ['required', 'string'],
-            'dish_list.dishes.*.price' => ['required', 'numeric'],
-            'dish_list.dishes.*.count' => ['required', 'integer'],
+            'dish_list.dishes' => ['nullable', 'array'],
+            'dish_list.dishes.*.id' => ['required_with:dish_list.dishes', 'string'],
+            'dish_list.dishes.*.name' => ['required_with:dish_list.dishes', 'string'],
+            'dish_list.dishes.*.price' => ['required_with:dish_list.dishes', 'numeric'],
+            'dish_list.dishes.*.count' => ['required_with:dish_list.dishes', 'integer'],
 
             // workers data
             'workers' => ['required', 'array'],
