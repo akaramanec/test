@@ -40,20 +40,20 @@ class OrderRequest extends FormRequest
             'table.name' => [$this->required, $this->string],
 
             // dishes data
-            'dish_list' => [$callRequired, $this->array],
-            'dish_list.name' => [$callRequired, $this->string],
+            'dish_list' => ['sometimes', $callRequired, $this->array],
+            'dish_list.name' => ['sometimes', $callRequired, $this->string],
 
-            'dish_list.dishes' => [$callRequired, $this->array, $this->min0],
-            'dish_list.dishes.*.id' => [$callRequired, $this->string],
-            'dish_list.dishes.*.name' => [$callRequired, $this->string],
-            'dish_list.dishes.*.price' => [$callRequired, $this->numeric],
-            'dish_list.dishes.*.count' => [$callRequired, $this->integer],
+            'dish_list.dishes' => ['sometimes', $callRequired, $this->array, $this->min0],
+            'dish_list.dishes.*.id' => ['sometimes', $callRequired, $this->string],
+            'dish_list.dishes.*.name' => ['sometimes', $callRequired, $this->string],
+            'dish_list.dishes.*.price' => ['sometimes', $callRequired, $this->numeric],
+            'dish_list.dishes.*.count' => ['sometimes', $callRequired, $this->integer],
             
-            'dish_list.add_dishes' => [$addRequired, $this->array, $this->min0],
-            'dish_list.add_dishes.*.id' => [$addRequired, $this->string],
-            'dish_list.add_dishes.*.name' => [$addRequired, $this->string],
-            'dish_list.add_dishes.*.price' => [$addRequired, $this->numeric],
-            'dish_list.add_dishes.*.count' => [$addRequired, $this->integer],
+            'dish_list.add_dishes' => ['sometimes', $addRequired, $this->array, $this->min0],
+            'dish_list.add_dishes.*.id' => ['sometimes', $addRequired, $this->string],
+            'dish_list.add_dishes.*.name' => ['sometimes', $addRequired, $this->string],
+            'dish_list.add_dishes.*.price' => ['sometimes', $addRequired, $this->numeric],
+            'dish_list.add_dishes.*.count' => ['sometimes', $addRequired, $this->integer],
 
             // workers data
             'waiter_id' => [$this->required, $this->string],
