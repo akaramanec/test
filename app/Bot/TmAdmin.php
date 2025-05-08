@@ -32,7 +32,7 @@ class TmAdmin extends TmCommon
         $this->sendButton($this->prepareText($text), $buttons);
         if (isset($this->response['result']['message_id'])) {
             $this->saveResponseMessageIdToCommon();
-            InEstablishmentService::saveMessageId($notification, $this->init->customer->external_id, $this->response['result']['message_id']);
+            InEstablishmentService::saveMessageId($notification, $this->init->customer->id, $this->response['result']['message_id']);
         }
     }
 
@@ -56,10 +56,7 @@ class TmAdmin extends TmCommon
         $placeholders = TabsterService::getPlaceholdersFromNotification($notification);
         $waiterBot = $waiter->getBot();
         $waiterBot->sendMessage(Text::getPrepared('adminAssigned', $placeholders));
-        if (isset($waiterBot->response['result']['message_id'])) {
-            $waiterBot->saveResponseMessageIdToCommon();
-            InEstablishmentService::saveMessageId($notification, $waiter->external_id, $waiterBot->response['result']['message_id']);
-        }
+        $waiterBot->saveResponseMessageIdToCommon();
         InEstablishmentService::deleteMessages($notification);
         $notification->addData(['assigned_by' => Customer::ROLE_ADMIN, 'assigned_waiter_id' => $waiter->external_id]);
         $notification->update(['status' => Notification::STATUS_ASSIGNED]);
