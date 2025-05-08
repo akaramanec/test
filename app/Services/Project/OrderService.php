@@ -11,7 +11,7 @@ class OrderService
             '{table}' => $data['table']['name'] ?? '',
             '{visitor}' => $data['visitor']['name'] ?? '',
             '{add}' => $data['add'] ?? '',
-            '{payType}' => $data['pay_type'] ?? '',
+            '{pay_type}' => $data['pay_type'] ?? '',
             '{evaluate}' => $data['evaluate'] ?? '',
         ];
     }

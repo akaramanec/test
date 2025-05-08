@@ -6,47 +6,69 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class VisitorRequest extends FormRequest
 {
+    protected string $required = 'required';
+    protected string $nullable = 'nullable';
+    protected string $array = 'array';
+    protected string $string = 'string';
+    protected string $numeric = 'numeric';
+    protected string $integer = 'integer';
+    protected string $requiredWith = 'required_with';
+    protected string $requiredWithDishList;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->requiredWithDishList = $this->requiredWith . ':dish_list';
+    }
+
     public function rules(): array
     {
+        $routeName = request()->route()->getName();
+        $isVisitorIn = $routeName == 'visitor.in';
+        $isVisitorEvaluate = $routeName == 'visitor.evaluate';
+
+        $inRequired = $isVisitorIn ? $this->required : $this->nullable;
+        $evaluateRequired = $isVisitorEvaluate ? $this->required : $this->nullable;
+
         return [
-            'reservation_id' => ['required', 'string'],
+            'reservation_id' => [$this->required, $this->string],
 
             // client data
-            'user' => ['required', 'array'],
-            'user.id' => ['required', 'string'],
-            'user.name' => ['required', 'string'],
+            'user' => [$this->required, $this->array],
+            'user.id' => [$this->required, $this->string],
+            'user.name' => [$this->required, $this->string],
 
-            'restaurant_id' => [request()->route()->getName() == 'visitor.in' ? 'required' : 'nullable', 'string'],
-            'time' => [request()->route()->getName() == 'visitor.in' ? 'required' : 'nullable', 'date_format:Y-m-d H:i:s'],
-            'evaluate' => [request()->route()->getName() == 'visitor.evaluate' ? 'required' : 'nullable', 'numeric'],
+            'restaurant_id' => [$inRequired, $this->string],
+            'time' => [$inRequired, 'date_format:Y-m-d H:i:s'],
+            'evaluate' => [$evaluateRequired, $this->numeric],
 
             // order data
-            'order_id' => ['nullable', 'string'],
+            'order_id' => [$this->nullable, $this->string],
 
             // table data
-            'table' => ['required', 'array'],
-            'table.id' => ['required', 'string'],
-            'table.name' => ['required', 'string'],
+            'table' => [$this->required, $this->array],
+            'table.id' => [$this->required, $this->string],
+            'table.name' => [$this->required, $this->string],
 
             // dishes data
-            'dish_list' => ['nullable', 'array'],
-            'dish_list.name' => ['required_with:dish_list', 'string'],
-            'dish_list.dishes' => ['required_with:dish_list', 'array'],
-            'dish_list.dishes.*.id' => ['required_with:dish_list', 'string'],
-            'dish_list.dishes.*.name' => ['required_with:dish_list', 'string'],
-            'dish_list.dishes.*.price' => ['required_with:dish_list', 'numeric'],
-            'dish_list.dishes.*.count' => ['required_with:dish_list', 'integer'],
+            'dish_list' => [$this->nullable, $this->array],
+            'dish_list.name' => [$this->requiredWithDishList, $this->string],
+            'dish_list.dishes' => [$this->requiredWithDishList, $this->array],
+            'dish_list.dishes.*.id' => [$this->requiredWithDishList, $this->string],
+            'dish_list.dishes.*.name' => [$this->requiredWithDishList, $this->string],
+            'dish_list.dishes.*.price' => [$this->requiredWithDishList, $this->numeric],
+            'dish_list.dishes.*.count' => [$this->requiredWithDishList, $this->integer],
 
             // workers data
-            'workers' => ['required', 'array'],
-            'workers.admins' => ['required', 'array'],
-            'workers.admins.*.id' => ['required', 'string'],
-            'workers.admins.*.name' => ['required', 'string'],
-            'workers.admins.*.phone' => ['required', 'string'],
-            'workers.waiters' => ['required', 'array'],
-            'workers.waiters.*.id' => ['required', 'string'],
-            'workers.waiters.*.name' => ['required', 'string'],
-            'workers.waiters.*.phone' => ['required', 'string'],
+            'workers' => [$this->required, $this->array],
+            'workers.admins' => [$this->required, $this->array],
+            'workers.admins.*.id' => [$this->required, $this->string],
+            'workers.admins.*.name' => [$this->required, $this->string],
+            'workers.admins.*.phone' => [$this->required, $this->string],
+            'workers.waiters' => [$this->required, $this->array],
+            'workers.waiters.*.id' => [$this->required, $this->string],
+            'workers.waiters.*.name' => [$this->required, $this->string],
+            'workers.waiters.*.phone' => [$this->required, $this->string],
         ];
     }
 }
