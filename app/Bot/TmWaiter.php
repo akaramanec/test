@@ -46,7 +46,15 @@ class TmWaiter extends TmCommon
 
         $notification->addData(['assigned_by' => Customer::ROLE_ADMIN, 'assigned_waiter_id' => $this->init->customer->external_id]);
         $notification->update(['status' => Notification::STATUS_ASSIGNED]);
+        
         InEstablishmentService::deleteMessagesExceptWaiter($notification, $this->init->customer->id);
+
+        if (isset($notification->message_ids[$this->init->customer->id])) {
+            $placeholders = TabsterService::getPlaceholdersFromNotification($notification);
+            $text = Text::getPrepared('visitorIn', $placeholders) . "\n\n✅ Столик взят вами";
+            $this->editMessageText($text);
+        }
+
         SendWaiterAssignTableJob::dispatch($notification);
     }
 
