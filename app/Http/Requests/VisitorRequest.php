@@ -14,6 +14,7 @@ class VisitorRequest extends FormRequest
     protected string $integer = 'integer';
     protected string $requiredWith = 'required_with';
     protected string $requiredWithDishList;
+    protected string $min0 = 'min:0';
 
     public function __construct()
     {
@@ -53,7 +54,7 @@ class VisitorRequest extends FormRequest
             // dishes data
             'dish_list' => [$this->nullable, $this->array],
             'dish_list.name' => [$this->requiredWithDishList, $this->string],
-            'dish_list.dishes' => [$this->requiredWithDishList, $this->array],
+            'dish_list.dishes' => [$this->requiredWithDishList, $this->array, $this->min0],
             'dish_list.dishes.*.id' => [$this->requiredWithDishList, $this->string],
             'dish_list.dishes.*.name' => [$this->requiredWithDishList, $this->string],
             'dish_list.dishes.*.price' => [$this->requiredWithDishList, $this->numeric],

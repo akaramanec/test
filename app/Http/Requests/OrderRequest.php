@@ -12,6 +12,7 @@ class OrderRequest extends FormRequest
     protected string $string = 'string';
     protected string $numeric = 'numeric';
     protected string $integer = 'integer';
+    protected string $min0 = 'min:0';
 
     public function rules(): array
     {
@@ -42,13 +43,13 @@ class OrderRequest extends FormRequest
             'dish_list' => [$callRequired, $this->array],
             'dish_list.name' => [$callRequired, $this->string],
 
-            'dish_list.dishes' => [$callRequired, $this->array],
+            'dish_list.dishes' => [$callRequired, $this->array, $this->min0],
             'dish_list.dishes.*.id' => [$callRequired, $this->string],
             'dish_list.dishes.*.name' => [$callRequired, $this->string],
             'dish_list.dishes.*.price' => [$callRequired, $this->numeric],
             'dish_list.dishes.*.count' => [$callRequired, $this->integer],
             
-            'dish_list.add_dishes' => [$addRequired, $this->array],
+            'dish_list.add_dishes' => [$addRequired, $this->array, $this->min0],
             'dish_list.add_dishes.*.id' => [$addRequired, $this->string],
             'dish_list.add_dishes.*.name' => [$addRequired, $this->string],
             'dish_list.add_dishes.*.price' => [$addRequired, $this->numeric],
