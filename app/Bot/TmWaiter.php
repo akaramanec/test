@@ -29,7 +29,7 @@ class TmWaiter extends TmCommon
         $this->sendButton($this->prepareText($text), $buttons);
         if (isset($this->response['result']['message_id'])) {
             $this->saveResponseMessageIdToCommon();
-            InEstablishmentService::saveMessageId($notification, $this->init->customer->id, $this->response['result']['message_id']);
+            InEstablishmentService::saveMessageId($notification, $this->init->customer->external_id, $this->response['result']['message_id']);
         }
     }
 
@@ -52,8 +52,10 @@ class TmWaiter extends TmCommon
         $placeholders = TabsterService::getPlaceholdersFromNotification($notification);
         $text = Text::getPrepared('visitorIn', $placeholders) . "\n\n✅ Ви взяли це замовлення";
         $this->sendMessage($text);
-        $this->saveResponseMessageIdToCommon();
-        InEstablishmentService::saveMessageId($notification, $this->init->customer->id, $this->response['result']['message_id']);
+        if (isset($this->response['result']['message_id'])) {
+            $this->saveResponseMessageIdToCommon();
+            InEstablishmentService::saveMessageId($notification, $this->init->customer->external_id, $this->response['result']['message_id']);
+        }
 
         SendWaiterAssignTableJob::dispatch($notification);
     }
