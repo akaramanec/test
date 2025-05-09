@@ -53,8 +53,7 @@ class TmWaiter extends TmCommon
         $text = Text::getPrepared('visitorIn', $placeholders) . "\n\n✅ Ви взяли це замовлення";
         $this->sendMessage($text);
         $this->saveResponseMessageIdToCommon();
-        InEstablishmentService::saveMessageId($notification, $this->init->customer->id, $this->response['result']['message_id']);
-
+        InEstablishmentService::saveMessageId($notification, $this->init->customer->external_id, $this->response['result']['message_id']);
         SendWaiterAssignTableJob::dispatch($notification);
     }
 

@@ -32,6 +32,7 @@ class TabsterService
                 'waiter_id' => $notification->data['assigned_waiter_id'],
                 'reservation_id' => $notification->data['reservation_id'],
                 'restaurant_id' => $notification->data['restaurant_id'],
+                'phone' => $notification->data['user']['phone'] ?? null,
             ]
         ];
         $response = $tabsterApi->post('/telegram/events', $requestData);
