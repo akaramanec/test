@@ -32,7 +32,11 @@ class TmAdmin extends TmCommon
         $this->sendButton($this->prepareText($text), $buttons);
         if (isset($this->response['result']['message_id'])) {
             $this->saveResponseMessageIdToCommon();
-            InEstablishmentService::saveMessageId($notification, $this->init->customer->id, $this->response['result']['message_id']);
+            InEstablishmentService::saveMessageId(
+                $notification, 
+                $this->init->customer->id, 
+                $this->response['result']['message_id']
+            );
         }
     }
 

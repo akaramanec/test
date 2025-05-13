@@ -29,7 +29,11 @@ class TmWaiter extends TmCommon
         $this->sendButton($this->prepareText($text), $buttons);
         if (isset($this->response['result']['message_id'])) {
             $this->saveResponseMessageIdToCommon();
-            InEstablishmentService::saveMessageId($notification, $this->init->customer->id, $this->response['result']['message_id']);
+            InEstablishmentService::saveMessageId(
+                $notification, 
+                $this->init->customer->id, 
+                $this->response['result']['message_id']
+            );
         }
     }
 
@@ -40,20 +44,29 @@ class TmWaiter extends TmCommon
         }
 
         if ($notification->status == Notification::STATUS_ASSIGNED) {
-            $this->sendMessage(Text::getPrepared('reserveAlreadyAssigned'));
+            $this->sendMessage(Text::getPrepared('Це замовлення вже взяв інший офіціант 😢'));
             exit(__METHOD__);
         }
 
-        $notification->addData(['assigned_by' => Customer::ROLE_ADMIN, 'assigned_waiter_id' => $this->init->customer->external_id]);
+        $notification->addData([
+            'assigned_by' => Customer::ROLE_WAITER, 
+            'assigned_waiter_id' => $this->init->customer->external_id,
+            'waiter_phone' => $this->init->customer->phone,
+        ]);
         $notification->update(['status' => Notification::STATUS_ASSIGNED]);
         
-        InEstablishmentService::deleteMessages($notification);
-
         $placeholders = TabsterService::getPlaceholdersFromNotification($notification);
         $text = Text::getPrepared('visitorIn', $placeholders) . "\n\n✅ Ви взяли це замовлення";
         $this->sendMessage($text);
         $this->saveResponseMessageIdToCommon();
-        InEstablishmentService::saveMessageId($notification, $this->init->customer->external_id, $this->response['result']['message_id']);
+        InEstablishmentService::saveMessageId(
+            $notification, 
+            $this->init->customer->id, 
+            $this->response['result']['message_id']
+        );
+
+        InEstablishmentService::deleteMessages($notification);
+
         SendWaiterAssignTableJob::dispatch($notification);
     }
 
