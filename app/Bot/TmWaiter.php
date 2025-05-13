@@ -55,6 +55,8 @@ class TmWaiter extends TmCommon
         ]);
         $notification->update(['status' => Notification::STATUS_ASSIGNED]);
         
+        InEstablishmentService::deleteMessages($notification);
+
         $placeholders = TabsterService::getPlaceholdersFromNotification($notification);
         $text = Text::getPrepared('visitorIn', $placeholders) . "\n\n✅ Ви взяли це замовлення";
         $this->sendMessage($text);
@@ -64,8 +66,6 @@ class TmWaiter extends TmCommon
             $this->init->customer->id, 
             $this->response['result']['message_id']
         );
-
-        InEstablishmentService::deleteMessages($notification);
 
         SendWaiterAssignTableJob::dispatch($notification);
     }
