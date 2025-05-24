@@ -3,7 +3,7 @@
 namespace App\Bot;
 
 use App\Jobs\SendWaiterAssignTableJob;
-use App\Models\Bot\Customer;
+use App\Models\Bot\Employer;
 use App\Models\Bot\Text;
 use App\Models\Logger;
 use App\Models\Project\Notification;
@@ -30,8 +30,8 @@ class TmWaiter extends TmCommon
         if (isset($this->response['result']['message_id'])) {
             $this->saveResponseMessageIdToCommon();
             InEstablishmentService::saveMessageId(
-                $notification, 
-                $this->init->customer->id, 
+                $notification,
+                $this->init->customer->id,
                 $this->response['result']['message_id']
             );
         }
@@ -49,12 +49,12 @@ class TmWaiter extends TmCommon
         }
 
         $notification->addData([
-            'assigned_by' => Customer::ROLE_WAITER, 
+            'assigned_by' => Employer::ROLE_WAITER,
             'assigned_waiter_id' => $this->init->customer->external_id,
             'waiter_phone' => $this->init->customer->phone,
         ]);
         $notification->update(['status' => Notification::STATUS_ASSIGNED]);
-        
+
         InEstablishmentService::deleteMessages($notification);
 
         $placeholders = TabsterService::getPlaceholdersFromNotification($notification);
@@ -62,8 +62,8 @@ class TmWaiter extends TmCommon
         $this->sendMessage($text);
         $this->saveResponseMessageIdToCommon();
         InEstablishmentService::saveMessageId(
-            $notification, 
-            $this->init->customer->id, 
+            $notification,
+            $this->init->customer->id,
             $this->response['result']['message_id']
         );
 

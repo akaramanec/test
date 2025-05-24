@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Bot\Customer;
+use App\Models\Bot\Employer;
 use App\Models\Project\Notification;
 use App\Services\Project\InEstablishmentService;
 use App\Services\Tabster\TabsterService;
@@ -27,7 +27,7 @@ class InEstablishmentJob implements ShouldQueue
     public function handle()
     {
         if (isset($this->notification->data['workers'])) {
-            Customer::updateWorkers($this->notification->data['workers']);
+            Employer::updateWorkers($this->notification->data['workers']);
         }
 
         InEstablishmentService::sendMessages($this->notification);

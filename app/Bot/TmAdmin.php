@@ -3,7 +3,7 @@
 namespace App\Bot;
 
 use App\Jobs\SendWaiterAssignTableJob;
-use App\Models\Bot\Customer;
+use App\Models\Bot\Employer;
 use App\Models\Bot\Text;
 use App\Models\Project\Notification;
 use App\Services\Project\InEstablishmentService;
@@ -16,8 +16,8 @@ class TmAdmin extends TmCommon
         $placeholders = TabsterService::getPlaceholdersFromNotification($notification);
         $text = Text::getPrepared('visitorIn', $placeholders);
         $buttons = [];
-        $waiters = Customer::whereIn('external_id', array_column($notification->data['workers']['waiters'], 'id'))->get();
-        /** @var Customer $waiter */
+        $waiters = Employer::whereIn('external_id', array_column($notification->data['workers']['waiters'], 'id'))->get();
+        /** @var Employer $waiter */
         foreach ($waiters as $waiter) {
             $buttons[] = [[
                 'text' => $waiter->fullName(),
@@ -33,8 +33,8 @@ class TmAdmin extends TmCommon
         if (isset($this->response['result']['message_id'])) {
             $this->saveResponseMessageIdToCommon();
             InEstablishmentService::saveMessageId(
-                $notification, 
-                $this->init->customer->id, 
+                $notification,
+                $this->init->customer->id,
                 $this->response['result']['message_id']
             );
         }
@@ -42,8 +42,8 @@ class TmAdmin extends TmCommon
 
     public function assignWaiter()
     {
-        /** @var Customer $waiter */
-        if (!isset($this->init->data->wid) || !($waiter = Customer::whereId($this->init->data->wid)->first())) {
+        /** @var Employer $waiter */
+        if (!isset($this->init->data->wid) || !($waiter = Employer::whereId($this->init->data->wid)->first())) {
             $this->unknown();
         }
 
@@ -62,7 +62,7 @@ class TmAdmin extends TmCommon
         $waiterBot->sendMessage(Text::getPrepared('adminAssigned', $placeholders));
         $waiterBot->saveResponseMessageIdToCommon();
         InEstablishmentService::deleteMessages($notification);
-        $notification->addData(['assigned_by' => Customer::ROLE_ADMIN, 'assigned_waiter_id' => $waiter->external_id]);
+        $notification->addData(['assigned_by' => Employer::ROLE_ADMIN, 'assigned_waiter_id' => $waiter->external_id]);
         $notification->update(['status' => Notification::STATUS_ASSIGNED]);
         SendWaiterAssignTableJob::dispatch($notification);
     }

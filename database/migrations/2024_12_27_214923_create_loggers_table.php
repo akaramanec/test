@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Bot\Customer;
+use App\Models\Bot\Employer;
 use App\Services\EloquentTableValuesTrait;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->json('data')->nullable();
             $table->string('slug')->nullable();
-            $this->foreignFor($table, new Customer, 'platform_id');
+            $this->foreignFor($table, new Employer, 'platform_id');
             $table->dateTime('created_at');
         });
     }

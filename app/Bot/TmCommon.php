@@ -2,7 +2,7 @@
 
 namespace App\Bot;
 
-use App\Models\Bot\Customer;
+use App\Models\Bot\Employer;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -23,11 +23,11 @@ class TmCommon extends TmBase
 
     public function checkAuth()
     {
-        if ($this->init->customer->status === Customer::STATUS_BLACKLIST) {
+        if ($this->init->customer->status === Employer::STATUS_BLACKLIST) {
             $this->sendMessage($this->text('blacklist'));
             exit(__METHOD__ . __LINE__);
         }
-        if ($this->init->customer->status != Customer::STATUS_ACTIVE) {
+        if ($this->init->customer->status != Employer::STATUS_ACTIVE) {
             $this->init->action('phone');
             exit(__METHOD__);
         }
@@ -247,16 +247,6 @@ class TmCommon extends TmBase
     public function none()
     {
         exit(__METHOD__.' '.__LINE__);
-    }
-
-    public function getOperation()
-    {
-        $operation = null;
-        if (! isset($this->init->data->oid) || ! $this->init->data->oid || ! $operation = Operation::find($this->init->data->oid)) {
-            $this->unknown();
-        }
-
-        return $operation;
     }
 
     public function validate($field)
