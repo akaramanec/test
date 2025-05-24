@@ -2,18 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CustomerResource\Pages;
-use App\Filament\Resources\CustomerResource\RelationManagers;
-use App\Models\Bot\Customer;
+use App\Filament\Resources\EmployerResource\Pages;
+use App\Models\Bot\Employer;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class CustomerResource extends Resource
+class EmployerResource extends Resource
 {
-    protected static ?string $model = Customer::class;
+    protected static ?string $model = Employer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -90,9 +89,9 @@ class CustomerResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCustomers::route('/'),
-            'create' => Pages\CreateCustomer::route('/create'),
-            'edit' => Pages\EditCustomer::route('/{record}/edit'),
+            'index' => Pages\ListEmployers::route('/'),
+            'create' => Pages\CreateEmployer::route('/create'),
+            'edit' => Pages\EditEmployer::route('/{record}/edit'),
         ];
     }
 }

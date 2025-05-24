@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Bot\Customer;
+use App\Models\Bot\Employer;
 use App\Models\Logger;
 use App\Services\Tabster\TabsterService;
 use Illuminate\Bus\Queueable;
@@ -27,11 +27,11 @@ class OrderJob implements ShouldQueue
     public function handle()
     {
         if (isset($this->data['workers'])) {
-            Customer::updateWorkers($this->data['workers']);
+            Employer::updateWorkers($this->data['workers']);
         }
 
-        $waiter = Customer::where('external_id', $this->data['waiter_id'])->first();
-        /** @var Customer $waiter */
+        $waiter = Employer::where('external_id', $this->data['waiter_id'])->first();
+        /** @var Employer $waiter */
         if ($waiter) {
             $bot = $waiter->getBot();
             match ($this->type) {

@@ -4,14 +4,12 @@ namespace App\Models\Bot;
 
 use App\Bot\TmAdmin;
 use App\Bot\TmWaiter;
-use App\Models\Project\CustomerEstablishment;
-use App\Models\Project\Establishment;
 use App\Services\TableValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
-class Customer extends Authenticatable implements JWTSubject
+class Employer extends Authenticatable implements JWTSubject
 {
     use HasFactory, TableValuesTrait;
 
@@ -30,7 +28,7 @@ class Customer extends Authenticatable implements JWTSubject
     const ROLE_ADMIN = 'admin';
     const ROLE_WAITER = 'waiter';
 
-    protected $table = 'bot_customers';
+    protected $table = 'employers';
 
     protected $fillable = [
         'phone',
@@ -40,12 +38,6 @@ class Customer extends Authenticatable implements JWTSubject
         'status',
         'name',
     ];
-
-    public function establishment()
-    {
-        return $this->belongsToMany(Establishment::class, CustomerEstablishment::tableName());
-    }
-
     public function status(): string
     {
         $css = [
@@ -70,8 +62,7 @@ class Customer extends Authenticatable implements JWTSubject
 
     public function fullName()
     {
-        $name = "$this->first_name $this->last_name";
-        return $name != " " ? $name : $this->name;
+        return $this->name;
     }
 
     public function imgUrl()
@@ -114,8 +105,7 @@ class Customer extends Authenticatable implements JWTSubject
             $dbCustomer = new self();
             $dbCustomer->external_id = $customer->id;
             $dbCustomer->role = $customer->role;
-            $dbCustomer->first_name = $customer->first_name ?? null;
-            $dbCustomer->last_name = $customer->last_name ?? null;
+            $dbCustomer->name = $customer->name ?? null;
             $dbCustomer->phone = $customer->phone;
             $dbCustomer->save();
         }
@@ -137,8 +127,8 @@ class Customer extends Authenticatable implements JWTSubject
         if ($workers['admins']) {
             foreach ($workers['admins'] as $admin) {
                 $customer = self::where('external_id', $admin['id'])->first();
-                if ($customer && !$customer->role != Customer::ROLE_ADMIN) {
-                    $customer->role = Customer::ROLE_ADMIN;
+                if ($customer && !$customer->role != Employer::ROLE_ADMIN) {
+                    $customer->role = Employer::ROLE_ADMIN;
                     $customer->save();
                 }
             }
@@ -147,8 +137,8 @@ class Customer extends Authenticatable implements JWTSubject
         if ($workers['waiters']) {
             foreach ($workers['waiters'] as $waiter) {
                 $customer = self::where('external_id', $waiter['id'])->first();
-                if ($customer && !$customer->role != Customer::ROLE_WAITER) {
-                    $customer->role = Customer::ROLE_WAITER;
+                if ($customer && !$customer->role != Employer::ROLE_WAITER) {
+                    $customer->role = Employer::ROLE_WAITER;
                     $customer->save();
                 }
             }

@@ -2,7 +2,7 @@
 
 namespace App\Services\Project;
 
-use App\Models\Bot\Customer;
+use App\Models\Bot\Employer;
 use App\Models\Bot\Text;
 use App\Models\Project\Notification;
 
@@ -17,8 +17,8 @@ class InEstablishmentService
             $ids = array_column($workerGroup, 'id');
             $allIds = array_merge($allIds, $ids);
         }
-        $workers = Customer::whereIn('external_id', $allIds)->get();
-        /** @var Customer $worker */
+        $workers = Employer::whereIn('external_id', $allIds)->get();
+        /** @var Employer $worker */
         foreach ($workers as $worker) {
             $bot = $worker->getBot();
             $bot->visitorIn($notification);
@@ -31,7 +31,7 @@ class InEstablishmentService
     {
         if ($notification->message_ids) {
             foreach ($notification->message_ids as $workerId => $messageId) {
-                $worker = Customer::find($workerId);
+                $worker = Employer::find($workerId);
                 $bot = $worker->getBot();
                 $bot->deleteMessageByMessageId($messageId);
             }
@@ -47,7 +47,7 @@ class InEstablishmentService
         if ($messageIds) {
             foreach ($messageIds as $workerId => $messageId) {
                 if ($workerId != $waiterId) {
-                    $worker = Customer::find($workerId);
+                    $worker = Employer::find($workerId);
                     $bot = $worker->getBot();
                     $bot->deleteMessageByMessageId($messageId);
 

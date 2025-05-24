@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Bot\Customer;
+use App\Models\Bot\Employer;
 use App\Services\Tabster\TabsterService;
 use Illuminate\Console\Command;
 
