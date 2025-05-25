@@ -37,7 +37,9 @@ class Employer extends Authenticatable implements JWTSubject
         'role',
         'status',
         'name',
+        'restaurant_id'
     ];
+
     public function status(): string
     {
         $css = [
@@ -125,23 +127,28 @@ class Employer extends Authenticatable implements JWTSubject
     public static function updateWorkers(array $workers)
     {
         if ($workers['admins']) {
-            foreach ($workers['admins'] as $admin) {
-                $customer = self::where('external_id', $admin['id'])->first();
-                if ($customer && !$customer->role != Employer::ROLE_ADMIN) {
-                    $customer->role = Employer::ROLE_ADMIN;
-                    $customer->save();
-                }
+            $currentRole = Employer::ROLE_ADMIN;
+            foreach ($workers['waiters'] as $waiter) {
+                self::updateEmployer($waiter, $currentRole);
             }
         }
 
         if ($workers['waiters']) {
+            $currentRole = Employer::ROLE_WAITER;
             foreach ($workers['waiters'] as $waiter) {
-                $customer = self::where('external_id', $waiter['id'])->first();
-                if ($customer && !$customer->role != Employer::ROLE_WAITER) {
-                    $customer->role = Employer::ROLE_WAITER;
-                    $customer->save();
-                }
+                self::updateEmployer($waiter, $currentRole);
             }
+        }
+    }
+
+    public static function updateEmployer(mixed $waiter, string $currentRole): void
+    {
+        $customer = self::where('external_id', $waiter['id'])->first();
+        if ($customer && $customer->role != $currentRole) {
+            $customer->role = $currentRole;
+            $customer->name = $worker['name'] ?? $customer->name;
+            $customer->restaurant_id = $worker['restaurant_id'] ?? $customer->restaurant_id;
+            $customer->save();
         }
     }
 }
