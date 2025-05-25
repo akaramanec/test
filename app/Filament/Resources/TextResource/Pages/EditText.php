@@ -14,6 +14,7 @@ class EditText extends EditRecord
     {
         return [
             Actions\DeleteAction::make(),
+            Actions\CreateAction::make()->label('Створити ще'),
         ];
     }
 }
