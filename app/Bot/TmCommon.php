@@ -18,6 +18,7 @@ class TmCommon extends TmBase
         $this->delAll();
         $this->checkAuth();
         $this->sendMessage($this->text('start' . ucfirst($this->init->customer->role)));
+        $this->saveResponseMessageIdToCommon();
         $this->deleteMessage();
     }
 

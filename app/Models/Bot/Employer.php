@@ -128,8 +128,8 @@ class Employer extends Authenticatable implements JWTSubject
     {
         if ($workers['admins']) {
             $currentRole = Employer::ROLE_ADMIN;
-            foreach ($workers['waiters'] as $waiter) {
-                self::updateEmployer($waiter, $currentRole);
+            foreach ($workers['admins'] as $admin) {
+                self::updateEmployer($admin, $currentRole);
             }
         }
 

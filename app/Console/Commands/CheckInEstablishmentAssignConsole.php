@@ -28,22 +28,28 @@ class CheckInEstablishmentAssignConsole extends Command
     public function handle()
     {
         $this->info('CheckInEstablishmentAssignConsole');
-        $notifications = Notification::where('action', 'inEstablishment')->where('status',  Notification::STATUS_NEW);
+        $notifications = Notification::where('action', 'inEstablishment')
+            ->where('status',  Notification::STATUS_NEW)
+            ->where('updated_at', '<', now()->subSeconds(10));
         if (!$notifications->exists()) {
             $this->info('No new notifications');
             return;
         }
 
         $notificationIds = $notifications->pluck('id');
-//        Notification::whereIn('id', $notificationIds)->update(['status' => Notification::STATUS_PROCESSING]);
-
-        /** @var Notification $notification */
-        foreach (Notification::whereIn('id', $notificationIds)->get() as $notification) {
-            $this->info('Processing notification: ' . $notification->id);
-            InEstablishmentService::deleteMessages($notification);
-            InEstablishmentService::sendMessages($notification);
-            $notification->update(['status' => 'new']);
-            $this->info('Notification resent');
-        }
+        Notification::whereIn('id', $notificationIds)->update(['status' => Notification::STATUS_PROCESSING]);
+            /** @var Notification $notification */
+            foreach (Notification::whereIn('id', $notificationIds)->get() as $notification) {
+                try {
+                $this->info('Processing notification: ' . $notification->id);
+                InEstablishmentService::deleteMessages($notification);
+                InEstablishmentService::sendMessages($notification);
+                $notification->update(['status' => Notification::STATUS_NEW]);
+                $this->info('Notification resent');
+                } catch (\Exception $e) {
+                    $notification->update(['status' => Notification::STATUS_NEW]);
+                    throw new $e;
+                }
+            }
     }
 }

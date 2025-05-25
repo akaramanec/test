@@ -48,7 +48,7 @@ class OrderRequest extends FormRequest
             'dish_list.dishes.*.name' => ['sometimes', $callRequired, $this->string],
             'dish_list.dishes.*.price' => ['sometimes', $callRequired, $this->numeric],
             'dish_list.dishes.*.count' => ['sometimes', $callRequired, $this->integer],
-            
+
             'dish_list.add_dishes' => ['sometimes', $addRequired, $this->array, $this->min0],
             'dish_list.add_dishes.*.id' => ['sometimes', $addRequired, $this->string],
             'dish_list.add_dishes.*.name' => ['sometimes', $addRequired, $this->string],
@@ -56,7 +56,18 @@ class OrderRequest extends FormRequest
             'dish_list.add_dishes.*.count' => ['sometimes', $addRequired, $this->integer],
 
             // workers data
-            'waiter_id' => [$this->required, $this->string],
+            'workers' => [$this->required, $this->array],
+            'workers.admins' => [$this->required, $this->array],
+            'workers.admins.*.id' => [$this->required, $this->string],
+            'workers.admins.*.name' => [$this->required, $this->string],
+            'workers.admins.*.phone' => [$this->required, $this->string],
+            'workers.waiters' => [$this->required, $this->array],
+            'workers.waiters.*.id' => [$this->required, $this->string],
+            'workers.waiters.*.name' => [$this->required, $this->string],
+            'workers.waiters.*.phone' => [$this->required, $this->string],
+
+            // assigned waiter data
+            'waiter_id' => [$this->nullable, $this->string],
 
             // payment data
             'pay_type' => [$payRequired, $this->string],
