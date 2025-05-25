@@ -56,6 +56,8 @@ class LoggerResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('id')
+                    ->numeric(),
                 Forms\Components\ViewField::make('data')
                     ->view('components.formatted-data-column'),
                 Forms\Components\TextInput::make('slug')

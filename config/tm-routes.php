@@ -28,9 +28,13 @@ return [
         'class' => 'App\Bot\TmAuth',
         'method' => 'unsubscribed'
     ],
-    'a-aw' => [
+    'a-ae' => [
         'class' => 'App\Bot\TmAdmin',
-        'method' => 'assignWaiter'
+        'method' => 'assignEmployer'
+    ],
+    'a-ocae' => [
+        'class' => 'App\Bot\TmAdmin',
+        'method' => 'orderCallAssignEmployer'
     ],
     'w-av' => [
         'class' => 'App\Bot\TmWaiter',

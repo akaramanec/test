@@ -25,7 +25,7 @@ class VisitorJob implements ShouldQueue
 
     public function handle()
     {
-        $waiter = Employer::where('external_id', $this->data['assigned_waiter_id'])->first();
+        $waiter = Employer::where('external_id', $this->data['assigned_employer_id'])->first();
         /** @var Employer $waiter */
         if ($waiter) {
             $bot = $waiter->getBot();

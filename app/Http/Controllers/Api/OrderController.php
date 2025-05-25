@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EvaluationRequest;
 use App\Http\Requests\OrderRequest;
 use App\Jobs\OrderJob;
 use App\Jobs\VisitorJob;
@@ -35,7 +36,7 @@ class OrderController extends Controller
         return response()->json(['status' => 'ok'], Response::HTTP_OK);
     }
 
-    public function evaluate(OrderRequest $request)
+    public function evaluate(EvaluationRequest $request)
     {
         OrderJob::dispatch($request->all(), 'evaluate');
         return response()->json(['status' => 'ok'], Response::HTTP_OK);

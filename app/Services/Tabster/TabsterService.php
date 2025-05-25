@@ -29,7 +29,7 @@ class TabsterService
             'event_type' => 'PICK_UP_RESERVATION',
             'date' => $notification->updated_at->toIso8601String(),
             'payload' => [
-                'waiter_id' => $notification->data['assigned_waiter_id'],
+                'waiter_id' => $notification->data['assigned_employer_id'],
                 'reservation_id' => $notification->data['reservation_id'],
                 'restaurant_id' => $notification->data['restaurant_id'],
                 'phone' => $notification->data['user']['phone'] ?? null,
@@ -53,25 +53,33 @@ class TabsterService
 
         if (isset($data['dish_list']['dishes'])) {
             foreach ($data['dish_list']['dishes'] as $key => $dish) {
-                $dishes .= ($key + 1) . '. ' . $dish['name'] . PHP_EOL;
+                $dishes .= ($key + 1) . '. ' . $dish['name'] . " (x" . $dish['count'] . ")" . PHP_EOL;
             }
         }
         if (isset($data['dish_list']['add_dishes'])) {
             foreach ($data['dish_list']['add_dishes'] as $key => $dish) {
-                $addDishes .= ($key + 1) . '. ' . $dish['name'] . PHP_EOL;
+                $addDishes .= ($key + 1) . '. ' . $dish['name'] . " (x" . $dish['count'] . ")" . PHP_EOL;
             }
         }
 
-        $time = isset($data['time']) ? date('H:i', strtotime($data['time'])) : now()->format('H:i');
+        $dishList = '';
+        if (!empty($dishes)) {
+            $dishList = Text::getPrepared('preOrderDish', ['{dishes}' => $dishes]);
+        }
 
+        if (!empty($addDishes)) {
+            if ($dishList) $dishList .= PHP_EOL;
+            $dishList .= Text::getPrepared('orderAddDish', ['{add_dishes}' => $addDishes]);
+        }
+
+        $time = isset($data['time']) ? date('H:i', strtotime($data['time'])) : now()->format('H:i');
         return [
             '{visitor_name}' => $data['user']['name'],
             '{visitor_phone}' => $data['user']['phone'] ?? '',
-            '{pay_type}' => $data['pay_type'] ?? '',
+            '{pay_type}' => isset($data['pay_type']) ? Text::getPrepared($data['pay_type']) : '',
             '{table}' => $data['table']['name'],
             '{zone}' => $data['table']['zone'],
-            '{dishes}' => $dishes ?? Text::getPrepared('noPreOrderDishes'),
-            '{add_dishes}' => $addDishes,
+            '{dish_list}' => $dishList,
             '{time}' => $time,
             '{evaluate}' => $data['evaluate'] ?? '',
         ];
