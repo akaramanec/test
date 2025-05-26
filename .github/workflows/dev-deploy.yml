@@ -19,8 +19,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: AKIAQFC26ZM5USHO5SOW
-          aws-secret-access-key: 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
+          aws-access-key-id: AKIAQFC26ZM5VNP5A45P
+          aws-secret-access-key: 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
           aws-region: us-east-1
 
       - name: Set sha output
@@ -64,8 +64,8 @@ jobs:
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v22
         with:
-          aws_access_key: AKIAQFC26ZM5USHO5SOW
-          aws_secret_key: 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
+          aws_access_key: AKIAQFC26ZM5VNP5A45P
+          aws_secret_key: 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
           application_name: "telegram-bot-app"
           environment_name: "telegram-bot-dev"
           region: us-east-1
