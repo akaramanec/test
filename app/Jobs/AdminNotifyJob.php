@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Bot\Customer;
+use App\Models\Bot\Employer;
 use App\Models\Logger;
 use App\Services\Tabster\TabsterService;
 use Illuminate\Bus\Queueable;
@@ -27,12 +27,12 @@ class AdminNotifyJob implements ShouldQueue
     public function handle()
     {
         if (isset($this->data['workers'])) {
-            Customer::updateWorkers($this->data['workers']);
+            Employer::updateWorkers($this->data['workers']);
             Logger::commit(['data' => $this->data], __METHOD__);
         }
 
-        $admins = Customer::whereIn('external_id', array_column($this->data['workers']['admins'], 'id'))->get();
-        /** @var Customer $admin */
+        $admins = Employer::whereIn('external_id', array_column($this->data['workers']['admins'], 'id'))->get();
+        /** @var Employer $admin */
         if ($admins) {
             foreach ($admins as $admin) {
                 $bot = $admin->getBot();

@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VisitorRequest;
 use App\Jobs\AdminNotifyJob;
-use App\Jobs\InEstablishmentJob;
 use App\Models\Project\Notification;
+use App\Services\Project\InEstablishmentService;
 use Illuminate\Http\Response;
 
 class VisitorController extends Controller
@@ -18,13 +18,13 @@ class VisitorController extends Controller
             return response()->json(['status' => 'ok'], Response::HTTP_OK);
         }
         try {
-            $this->notification = Notification::create([
+            $notification = Notification::create([
                 'key' => $key,
                 'action' => 'inEstablishment',
                 'status' => 'new',
                 'data' => $request->all()
             ]);
-            InEstablishmentJob::dispatch($this->notification);
+            InEstablishmentService::sendMessages($notification);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage(), 'trace' => $e->getTrace()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

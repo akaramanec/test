@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\EmployerController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\VisitorController;
 use App\Http\Controllers\Bot\HookController;
@@ -34,6 +35,10 @@ Route::group([
         Route::post('paid', [OrderController::class, 'paid'])->name('order.paid');
         Route::post('call', [OrderController::class, 'call'])->name('order.call');
         Route::post('evaluate', [OrderController::class, 'evaluate'])->name('order.evaluate');
+    });
+    Route::group(['prefix' => 'employer'], function () {
+        Route::post('update', [EmployerController::class, 'update'])->name('employer.update');
+        Route::delete('delete', [EmployerController::class, 'destroy'])->name('employer.delete');
     });
     Route::get('test', [HookController::class, 'test']);
 });

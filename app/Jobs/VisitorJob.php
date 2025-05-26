@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Bot\Customer;
+use App\Models\Bot\Employer;
 use App\Services\Tabster\TabsterService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -25,8 +25,8 @@ class VisitorJob implements ShouldQueue
 
     public function handle()
     {
-        $waiter = Customer::where('external_id', $this->data['assigned_waiter_id'])->first();
-        /** @var Customer $waiter */
+        $waiter = Employer::where('external_id', $this->data['assigned_employer_id'])->first();
+        /** @var Employer $waiter */
         if ($waiter) {
             $bot = $waiter->getBot();
             match ($this->type) {

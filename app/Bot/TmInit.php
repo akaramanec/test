@@ -2,12 +2,12 @@
 
 namespace App\Bot;
 
-use App\Models\Bot\Customer;
+use App\Models\Bot\Employer;
 use App\Models\Logger;
 
 /**
  * @property TmSession $session
- * @property Customer $customer
+ * @property Employer $customer
  */
 class TmInit
 {
@@ -25,7 +25,7 @@ class TmInit
 
     public TmSession $session;
 
-    public Customer $customer;
+    public Employer $customer;
 
     public $data;
 

@@ -59,10 +59,10 @@ class VisitorRequest extends FormRequest
             'workers.admins.*.id' => [$this->required, $this->string],
             'workers.admins.*.name' => [$this->required, $this->string],
             'workers.admins.*.phone' => [$this->required, $this->string],
-            'workers.waiters' => [$this->required, $this->array],
-            'workers.waiters.*.id' => [$this->required, $this->string],
-            'workers.waiters.*.name' => [$this->required, $this->string],
-            'workers.waiters.*.phone' => [$this->required, $this->string],
+            'workers.waiters' => [$this->nullable, $this->array],
+            'workers.waiters.*.id' => [$this->nullable, $this->string],
+            'workers.waiters.*.name' => [$this->nullable, $this->string],
+            'workers.waiters.*.phone' => [$this->nullable, $this->string],
         ];
     }
 }

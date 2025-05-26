@@ -3,14 +3,14 @@
 namespace App\Bot;
 
 use App\Jobs\SendWaiterAssignTableJob;
-use App\Models\Bot\Customer;
+use App\Models\Bot\Employer;
 use App\Models\Bot\Text;
 use App\Models\Logger;
 use App\Models\Project\Notification;
 use App\Services\Project\InEstablishmentService;
 use App\Services\Tabster\TabsterService;
 
-class TmWaiter extends TmCommon
+class TmWaiter extends TmEmployer
 {
     public function visitorIn(Notification $notification)
     {
@@ -30,8 +30,8 @@ class TmWaiter extends TmCommon
         if (isset($this->response['result']['message_id'])) {
             $this->saveResponseMessageIdToCommon();
             InEstablishmentService::saveMessageId(
-                $notification, 
-                $this->init->customer->id, 
+                $notification,
+                $this->init->customer->id,
                 $this->response['result']['message_id']
             );
         }
@@ -39,34 +39,25 @@ class TmWaiter extends TmCommon
 
     public function assignReserve()
     {
+        /** @var Notification $notification */
         if (!isset($this->init->data->nid) || !($notification = Notification::whereId($this->init->data->nid)->first())) {
             $this->unknown();
         }
 
         if ($notification->status == Notification::STATUS_ASSIGNED) {
-            $this->sendMessage(Text::getPrepared('Це замовлення вже взяв інший офіціант 😢'));
+            $placeholders = [];
+            if (isset($notification->data['assigned_by']) && isset($notification->data['assigned_employer_id'])) {
+                $placeholders = [
+                    '{assigned_by}' => $notification->data['assigned_by'],
+                    '{assigned_employer_id}' => $notification->data['assigned_employer_id']
+                ];
+            }
+            $this->sendMessage(Text::getPrepared('reserveAlreadyAssigned', $placeholders));
+            $this->saveResponseMessageIdToCommon();
             exit(__METHOD__);
         }
 
-        $notification->addData([
-            'assigned_by' => Customer::ROLE_WAITER, 
-            'assigned_waiter_id' => $this->init->customer->external_id,
-            'waiter_phone' => $this->init->customer->phone,
-        ]);
-        $notification->update(['status' => Notification::STATUS_ASSIGNED]);
-        
-        InEstablishmentService::deleteMessages($notification);
-
-        $placeholders = TabsterService::getPlaceholdersFromNotification($notification);
-        $text = Text::getPrepared('visitorIn', $placeholders) . "\n\n✅ Ви взяли це замовлення";
-        $this->sendMessage($text);
-        $this->saveResponseMessageIdToCommon();
-        InEstablishmentService::saveMessageId(
-            $notification, 
-            $this->init->customer->id, 
-            $this->response['result']['message_id']
-        );
-
+        $notification->assignByWaiter($this->init->customer);
         SendWaiterAssignTableJob::dispatch($notification);
     }
 
@@ -77,38 +68,5 @@ class TmWaiter extends TmCommon
             $this->unknown();
         }
         InEstablishmentService::deleteMessageForWaiter($notification, $this);
-    }
-
-    private function handleMessage(string $template, array $data)
-    {
-        $placeholders = TabsterService::getPlaceholdersFromData($data);
-        $text = Text::getPrepared($template, $placeholders);
-        $this->sendMessage($text);
-        $this->saveResponseMessageIdToCommon();
-    }
-
-    public function orderAdditional(array $data)
-    {
-        $this->handleMessage('orderAdditional', $data);
-    }
-
-    public function orderPay(array $data)
-    {
-        $this->handleMessage('orderPay', $data);
-    }
-
-    public function orderPaid(array $data)
-    {
-        $this->handleMessage('orderPaid', $data);
-    }
-
-    public function orderCall(array $data)
-    {
-        $this->handleMessage('orderCall', $data);
-    }
-
-    public function visitorEvaluate(array $data)
-    {
-        $this->handleMessage('visitorEvaluate', $data);
     }
 }

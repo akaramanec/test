@@ -20,7 +20,7 @@ class BotTestService
             dd('No log found');
         }
         $tmInit = app(TmInit::class);
-        $tmInit->run(json_decode(json_encode($this->log->data)));
-
+        $input = json_decode(json_encode($this->log->data));
+        $tmInit->run($input, Logger::commit($input, __METHOD__));
     }
 }

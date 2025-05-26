@@ -14,6 +14,9 @@ class EditText extends EditRecord
     {
         return [
             Actions\DeleteAction::make(),
+            Actions\Action::make('createNewText')
+                ->label('Створити ще')
+                ->url(fn () => route('filament.admin.resources.texts.create')),
         ];
     }
 }

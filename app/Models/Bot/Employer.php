@@ -4,14 +4,12 @@ namespace App\Models\Bot;
 
 use App\Bot\TmAdmin;
 use App\Bot\TmWaiter;
-use App\Models\Project\CustomerEstablishment;
-use App\Models\Project\Establishment;
 use App\Services\TableValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
-class Customer extends Authenticatable implements JWTSubject
+class Employer extends Authenticatable implements JWTSubject
 {
     use HasFactory, TableValuesTrait;
 
@@ -30,7 +28,7 @@ class Customer extends Authenticatable implements JWTSubject
     const ROLE_ADMIN = 'admin';
     const ROLE_WAITER = 'waiter';
 
-    protected $table = 'bot_customers';
+    protected $table = 'employers';
 
     protected $fillable = [
         'phone',
@@ -39,12 +37,8 @@ class Customer extends Authenticatable implements JWTSubject
         'role',
         'status',
         'name',
+        'restaurant_id'
     ];
-
-    public function establishment()
-    {
-        return $this->belongsToMany(Establishment::class, CustomerEstablishment::tableName());
-    }
 
     public function status(): string
     {
@@ -70,8 +64,7 @@ class Customer extends Authenticatable implements JWTSubject
 
     public function fullName()
     {
-        $name = "$this->first_name $this->last_name";
-        return $name != " " ? $name : $this->name;
+        return $this->name;
     }
 
     public function imgUrl()
@@ -114,8 +107,7 @@ class Customer extends Authenticatable implements JWTSubject
             $dbCustomer = new self();
             $dbCustomer->external_id = $customer->id;
             $dbCustomer->role = $customer->role;
-            $dbCustomer->first_name = $customer->first_name ?? null;
-            $dbCustomer->last_name = $customer->last_name ?? null;
+            $dbCustomer->name = $customer->name ?? null;
             $dbCustomer->phone = $customer->phone;
             $dbCustomer->save();
         }
@@ -135,23 +127,28 @@ class Customer extends Authenticatable implements JWTSubject
     public static function updateWorkers(array $workers)
     {
         if ($workers['admins']) {
+            $currentRole = Employer::ROLE_ADMIN;
             foreach ($workers['admins'] as $admin) {
-                $customer = self::where('external_id', $admin['id'])->first();
-                if ($customer && !$customer->role != Customer::ROLE_ADMIN) {
-                    $customer->role = Customer::ROLE_ADMIN;
-                    $customer->save();
-                }
+                self::updateEmployer($admin, $currentRole);
             }
         }
 
         if ($workers['waiters']) {
+            $currentRole = Employer::ROLE_WAITER;
             foreach ($workers['waiters'] as $waiter) {
-                $customer = self::where('external_id', $waiter['id'])->first();
-                if ($customer && !$customer->role != Customer::ROLE_WAITER) {
-                    $customer->role = Customer::ROLE_WAITER;
-                    $customer->save();
-                }
+                self::updateEmployer($waiter, $currentRole);
             }
+        }
+    }
+
+    public static function updateEmployer(mixed $waiter, string $currentRole): void
+    {
+        $customer = self::where('external_id', $waiter['id'])->first();
+        if ($customer && $customer->role != $currentRole) {
+            $customer->role = $currentRole;
+            $customer->name = $worker['name'] ?? $customer->name;
+            $customer->restaurant_id = $worker['restaurant_id'] ?? $customer->restaurant_id;
+            $customer->save();
         }
     }
 }
