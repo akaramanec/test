@@ -103,10 +103,12 @@ class Notification extends Model
         $adminBot->sendMessage($text);
         $adminBot->saveResponseMessageIdToCommon();
 
-        $waiterBot = $waiter->getBot();
-        $text = Text::getPrepared('adminAssigned', $placeholders);
-        $waiterBot->sendMessage($text);
-        $waiterBot->saveResponseMessageIdToCommon();
+        if ($admin->id != $waiter->id) {
+            $waiterBot = $waiter->getBot();
+            $text = Text::getPrepared('adminAssigned', $placeholders);
+            $waiterBot->sendMessage($text);
+            $waiterBot->saveResponseMessageIdToCommon();
+        }
 
         InEstablishmentService::deleteMessages($this);
     }
