@@ -26,7 +26,13 @@ class TmWaiter extends TmEmployer
                 'callback_data' => json_encode(['a' => 'w-rr', 'nid' => $notification->id]),
             ]
         ];
-        $this->sendButton($this->prepareText($text), $buttons);
+
+        if (isset($notification->data['waiter_id'])) {
+            $this->sendMessage($this->prepareText($text));
+        } else {
+            $this->sendButton($this->prepareText($text), $buttons);
+        }
+
         if (isset($this->response['result']['message_id'])) {
             $this->saveResponseMessageIdToCommon();
             InEstablishmentService::saveMessageId(

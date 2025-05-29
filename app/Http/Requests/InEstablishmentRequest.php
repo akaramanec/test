@@ -56,6 +56,9 @@ class InEstablishmentRequest extends FormRequest
             'workers.waiters.*.id' => [$this->required, $this->string],
             'workers.waiters.*.name' => [$this->required, $this->string],
             'workers.waiters.*.phone' => [$this->required, $this->string],
+
+            // assigned waiter data
+            'waiter_id' => [$this->nullable, $this->string],
         ];
     }
 }
