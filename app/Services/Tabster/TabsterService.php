@@ -4,6 +4,7 @@ namespace App\Services\Tabster;
 
 use App\Models\Bot\Text;
 use App\Models\Project\Notification;
+use Carbon\Carbon;
 
 class TabsterService
 {
@@ -72,7 +73,14 @@ class TabsterService
             $dishList .= Text::getPrepared('orderAddDish', ['{add_dishes}' => $addDishes]);
         }
 
-        $time = isset($data['time']) ? date('H:i', strtotime($data['time'])) : now()->format('H:i');
+        $date = '';
+        $time = '';
+        if (isset($data['time'])) {
+            $datetime = Carbon::parse($data['time']);
+            $date = $datetime->format('Y-m-d');
+            $time = $datetime->format('H:i');
+        }
+
         return [
             '{visitor_name}' => $data['user']['name'],
             '{visitor_phone}' => $data['user']['phone'] ?? '',
@@ -81,6 +89,7 @@ class TabsterService
             '{zone}' => $data['table']['zone'],
             '{dish_list}' => $dishList,
             '{time}' => $time,
+            '{date}' => $date,
             '{evaluate}' => $data['evaluate'] ?? '',
         ];
     }

@@ -28,6 +28,8 @@ Route::group([
         Route::post('in', [VisitorController::class, 'in'])->name('visitor.in');
         Route::post('late', [VisitorController::class, 'late'])->name('visitor.late');
         Route::post('reject', [VisitorController::class, 'reject'])->name('visitor.reject');
+        Route::post('pre-order', [VisitorController::class, 'preOrder'])->name('visitor.pre-order');
+        Route::post('reserve', [VisitorController::class, 'reserve'])->name('visitor.reserve');
     });
     Route::group(['prefix' => 'order'], function () {
         Route::post('add', [OrderController::class, 'add'])->name('order.add');

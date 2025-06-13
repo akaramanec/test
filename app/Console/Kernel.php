@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('check:in-establishment-assign')->everyMinute();
+        $schedule->command('check:reservation')->everyMinute()->between('8:00', '23:59');
 //        $schedule->command('queue:work --stop-when-empty')->everyMinute();
     }
 

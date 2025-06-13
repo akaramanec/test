@@ -2,12 +2,33 @@
 
 namespace App\Services\Project;
 
+use App\Http\Requests\VisitorRequest;
 use App\Models\Bot\Employer;
-use App\Models\Bot\Text;
 use App\Models\Project\Notification;
+use Illuminate\Http\Response;
 
 class InEstablishmentService
 {
+    public static function handleInEstablishment(VisitorRequest $request)
+    {
+
+        $key = "$request->reservation_id-" . today()->toDateString();
+        if (Notification::where('key', $key)->exists()) {
+            return response()->json(['status' => 'ok'], Response::HTTP_OK);
+        }
+        try {
+            $notification = Notification::create([
+                'key' => $key,
+                'action' => 'inEstablishment',
+                'status' => 'new',
+                'data' => $request->all()
+            ]);
+            self::sendMessages($notification);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage(), 'trace' => $e->getTrace()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return response()->json(['status' => 'ok'], Response::HTTP_CREATED);
+    }
 
     public static function sendMessages(Notification $notification)
     {

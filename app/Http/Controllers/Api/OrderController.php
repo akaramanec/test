@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\EvaluationRequest;
 use App\Http\Requests\OrderRequest;
 use App\Jobs\OrderJob;
-use App\Jobs\VisitorJob;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class OrderController extends Controller

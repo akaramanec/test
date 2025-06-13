@@ -126,4 +126,15 @@ class TmAdmin extends TmEmployer
         $waiterBot = $waiter->getBot();
         $waiterBot->handleMessage('adminAssigned', $data);
     }
+
+    public function preOrder(array $data)
+    {
+        $placeholders['{food_serving_status}'] = $data['food_serving_status'] ?? '';
+        $this->handleMessage('preOrder', $data, $placeholders);
+    }
+
+    public function reserve(array $data)
+    {
+        $this->handleMessage('newReserve', $data);
+    }
 }
